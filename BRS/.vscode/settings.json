@@ -1,0 +1,8 @@
+{
+    "python.envFile": "${workspaceFolder}/.env",
+    // "python.autoComplete.extraPaths": ["./BRS"],
+    "python.jediEnabled": true,
+    "python.linting.pylintEnabled": true,
+    "python.linting.enabled": true,
+
+}
