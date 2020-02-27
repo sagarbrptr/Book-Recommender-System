@@ -12,8 +12,6 @@ class ratings(models.Model):
         db_table = 'ratings'
         managed = False
         unique_together = (('cardnumber', 'barcode'),)
-<<<<<<< HEAD
-=======
 
 class books(models.Model):
     barcode = models.CharField(max_length = 8, primary_key = True)
@@ -70,4 +68,4 @@ class transaction(models.Model):
     class Meta:
         db_table = 'transaction'
         managed = False
->>>>>>> d5005020b3c1a1080daf22e54345e35d53981adf
+
