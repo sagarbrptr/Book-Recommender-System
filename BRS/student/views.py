@@ -30,6 +30,7 @@ def home(request):
 
         result.append(temp)
 
+    context = {'result' : result}
+    return render(request, 'student/tables.html', context)
 
-
-    return HttpResponse(result)
+    # return HttpResponse(result)
