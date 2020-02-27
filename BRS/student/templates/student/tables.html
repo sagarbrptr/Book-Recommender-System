@@ -77,27 +77,14 @@
                       <th>Book Name</th>
                     </tr>
                   </tfoot>
-                  <tbody>
+                  <tbody>                                     
+                    {% for i in result %}
                     <tr>
-                      <td>2016-01-07</td>
-                      <td>11526660</td>
-                      <td>CONCEPTS</td>
+                    <td>{{i.DATE}}</td>
+                    <td>{{i.barcode}}</td>
+                    <td>{{i.title}}</td>
                     </tr>
-                    <tr>
-                      <td>2011-07-22</td>
-                      <td>55126660</td>
-                      <td>LET US C</td>
-                    </tr>
-                    <tr>
-                      <td>2019-10-31</td>
-                      <td>78122610</td>
-                      <td>Sapno ka jahah</td>
-                    </tr>
-                    <tr>
-                      <td>2019-01-20</td>
-                      <td>11126660</td>
-                      <td>idhar nahi</td>
-                    </tr>
+                    {% endfor %}
                   </tbody>
                 </table>
               </div>
