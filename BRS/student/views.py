@@ -7,11 +7,11 @@ from django.http import HttpResponse
 def home(request):
     cursor = connection.cursor()
 
-    books_db = "select b.title, b.barcode, t.DATE from books_db as b, transaction as t where b.barcode = t.barcode and t.cardnumber = 'I2K16102142'"
+    books_db = "select distinct b.title, b.barcode, t.DATE from books_db as b, transaction as t where b.barcode = t.barcode and t.cardnumber = 'I2K16102142' group by title;"
 
-    cursor.execute("select b.title, b.barcode, t.DATE " + 
+    cursor.execute("select distinct b.title, b.barcode, t.DATE " + 
                     "from books as b, transaction as t" +
-                    " where b.barcode = t.barcode and t.cardnumber = 'I2K16102142' union all " + books_db)
+                    " where b.barcode = t.barcode and t.cardnumber = 'I2K16102142' group by title union all " + books_db)
     row = cursor.fetchall()
 
     # print(row)
