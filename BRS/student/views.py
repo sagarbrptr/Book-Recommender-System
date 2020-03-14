@@ -11,7 +11,7 @@ def home(request):
 
     cursor.execute("select distinct b.title, b.barcode, t.DATE " + 
                     "from books as b, transaction as t" +
-                    " where b.barcode = t.barcode and t.cardnumber = 'I2K16102142' group by title union all " + books_db)
+                    " where b.barcode = t.barcode and t.cardnumber = '123' group by title union all " + books_db)
     row = cursor.fetchall()
 
     # print(row)

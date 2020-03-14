@@ -78,9 +78,9 @@ DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
         'NAME': 'brs_db',
-        'USER': 'sagar@mydemoserverbrs',
+        'USER': 'admin',
         'PASSWORD':'GroupNo13',
-        'HOST':'mydemoserverbrs.mysql.database.azure.com',
+        'HOST':'brs-db.cmh6bzxvnr8x.us-east-1.rds.amazonaws.com',
         'PORT':'',
     }
 }
