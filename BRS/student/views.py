@@ -20,8 +20,8 @@ def home(request):
 
     for i in row:
 
-        print(i[0])
-        print(i[1])
+        # print(i[0])
+        # print(i[1])
 
         temp = {}
         temp["title"] = str(i[0])
@@ -31,6 +31,14 @@ def home(request):
         result.append(temp)
 
     context = {'result' : result}
+    cursor.close()
+    connection.close()
     return render(request, 'student/tables.html', context)
 
-    # return HttpResponse(result)
+def recommendLibrary(request):
+
+    result = "Recommend here"
+
+    context = {'result' : result}
+
+    return render(request, 'student/recommend-library.html', context)

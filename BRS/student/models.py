@@ -68,3 +68,14 @@ class transaction(models.Model):
     class Meta:
         db_table = 'transaction'
         managed = False
+
+class libraryRecommendation(models.Model):
+    srNo = models.IntegerField(primary_key = True)
+    bookTitle = models.CharField(max_length = 250)
+    author= models.CharField(max_length = 250)
+    category= models.CharField(max_length = 250)
+    requestCount= models.IntegerField()
+
+    class Meta:
+        db_table = 'libraryRecommendation'
+        managed = False
