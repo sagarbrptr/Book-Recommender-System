@@ -69,6 +69,8 @@ class transaction(models.Model):
         db_table = 'transaction'
         managed = False
 
+<<<<<<< HEAD
+=======
 class libraryRecommendation(models.Model):
     srNo = models.IntegerField(primary_key = True)
     bookTitle = models.CharField(max_length = 250)
@@ -79,3 +81,4 @@ class libraryRecommendation(models.Model):
     class Meta:
         db_table = 'libraryRecommendation'
         managed = False
+>>>>>>> e401f350ca7d9900fdfc3df934b69c6e1d6c217a
