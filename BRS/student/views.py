@@ -36,6 +36,7 @@ def home(request):
     return render(request, 'student/tables.html', context)
 
 def recommendLibrary(request):
+
     result = "Recommend here"
 
     context = {'result' : result}
