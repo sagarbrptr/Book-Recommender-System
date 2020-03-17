@@ -31,11 +31,6 @@ def home(request):
         result.append(temp)
 
     context = {'result' : result}
-<<<<<<< HEAD
-    return render(request, 'student/tables.html', context)
-
-    # return HttpResponse(result)
-=======
     cursor.close()
     connection.close()
     return render(request, 'student/tables.html', context)
@@ -47,4 +42,3 @@ def recommendLibrary(request):
     context = {'result' : result}
 
     return render(request, 'student/recommend-library.html', context)
->>>>>>> e401f350ca7d9900fdfc3df934b69c6e1d6c217a
