@@ -7,6 +7,7 @@ class ratings(models.Model):
     cardnumber = models.CharField(max_length = 14, primary_key = True)
     barcode = models.CharField(max_length = 9)
     rating = models.IntegerField()
+    valid = models.IntegerField(default = 0)
 
     class Meta:
         db_table = 'ratings'
@@ -70,7 +71,7 @@ class transaction(models.Model):
         managed = False
 
 class libraryRecommendation(models.Model):
-    srNo = models.IntegerField(primary_key = True)
+    srNo = models.AutoField(primary_key = True)
     bookTitle = models.CharField(max_length = 250)
     author= models.CharField(max_length = 250)
     category= models.CharField(max_length = 250)
