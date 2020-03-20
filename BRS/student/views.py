@@ -61,12 +61,17 @@ def recommendLibrary(request):
     alreadyRecommendedResult = []  
     checkRecommendedBooks = False  # Turns on when user clicks on button to check already recommended books
     newBookRecommendation = False # Turns on when user wants to recommend new book
+    newBookRecommended = False
+    newTitle = ""
+    newAuthor = ""
+    newCategory = ""
     
     if request.POST.get('title'):
         searchBook = False
         blankSearch = False
         checkRecommendedBooks = False
         newBookRecommendation = False
+        newBookRecommended = False
         title = request.POST.get('title')                
 
         queryBooks = "select barcode, title from bt_map where title like '%" + title + "%' group by title;"
@@ -110,8 +115,11 @@ def recommendLibrary(request):
         searchBook = False
         checkRecommendedBooks = True
         newBookRecommendation = False
+        newBookRecommended = False
         query = "select srNo, bookTitle, author from libraryRecommendation where bookTitle like '%" + title + "%' group by bookTitle;"
-        
+
+        print(query)
+
         cursor.execute(query)
         row = cursor.fetchall()
 
@@ -128,29 +136,30 @@ def recommendLibrary(request):
         newBookRecommendation = True
         searchBook = False
         checkRecommendedBooks = False
+        newBookRecommended = False
     
     if request.POST.get('newBookSubmit'):
+
+        print("HEllo World")
+
         newBookRecommendation = True
         searchBook = False
         checkRecommendedBooks = False
+        newBookRecommended = True
 
         newTitle = request.POST.get('newTitle')
         newAuthor = request.POST.get('newAuthor')
         newCategory = request.POST.get('newCategory')
 
+        print(newTitle)
+        print(newAuthor)
+        print(newCategory)
 
-        # query = "insert into libraryRecommendation values (default, '" + newTitle + "', '" + newAuthor + "', '" + newCategory + "', 1);"
-        # commit = "commit;"
-
-        # cursor.execute(query)
-        # cursor.execute(commit)
-        # connection.commit()
-
-        recommend = libraryRecommendation()
-        recommend.bookTitle = newTitle        
-        recommend.author = newAuthor
-        recommend.category = newCategory
-        recommend.requestCount = 1
+        recommend = libraryRecommendation.objects.create(bookTitle = str(newTitle),
+                                                         author = str(newAuthor),
+                                                         category = str(newCategory),
+                                                         requestCount = 1)
+        recommend.save()
 
     context = {
         'searchBook' : searchBook,
@@ -158,7 +167,11 @@ def recommendLibrary(request):
         'blankSearch' : blankSearch,
         'alreadyRecommendedResult' : alreadyRecommendedResult,
         'checkRecommendedBooks' : checkRecommendedBooks,
-        'newBookRecommendation' : newBookRecommendation
+        'newBookRecommendation' : newBookRecommendation,
+        'newTitle' : newTitle,
+        'newAuthor' : newAuthor,
+        'newCategory' : newCategory,
+        'newBookRecommended' : newBookRecommended
         }
         
     cursor.close()
