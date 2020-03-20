@@ -75,6 +75,8 @@
 
         {% if blankSearch == False and libraryResult|length  %}
 
+        <!-- <h5>{{title}}</h5> -->
+
           <!-- DataTales Example -->
           <div class="card shadow mb-4">
             <div class="card-header py-3">
@@ -119,6 +121,11 @@
               {% csrf_token %}
 
               <h5>Did not find what you were looking for ?</h5>
+              
+              <!-- Need to be fixed this  -->
+              <input hidden value="{{title}}" name="hiddenTitle" type="text">
+              <!--  -->
+
               <button name="checkRecommendedBooks" value="notFoundInLibrary" class="btn btn-primary"> Check already recommended books</button>
             </form>
           </div>
@@ -130,6 +137,11 @@
               {% csrf_token %}
 
               <h5>No book of this title in library</h5>
+               
+              <!-- Need to be fixed this  -->
+              <input hidden value="{{title}}" name="hiddenTitle" type="text">
+              <!--  -->
+
               <button name="checkRecommendedBooks" value="notFoundInLibrary" class="btn btn-primary"> Check already recommended books</button>
             </form>
           </div>
@@ -151,13 +163,15 @@
                   <thead>
                     <tr>                                            
                       <th>Book Name</th>     
-                      <th>Author</th>                
+                      <th>Author</th> 
+                      <th>Request</th>               
                     </tr>
                   </thead>
                   <tfoot>
                     <tr>                                            
                       <th>Book Name</th>
                       <th>Author</th> 
+                      <th>Request</th>               
                     </tr>
                   </tfoot>
                   <tbody>                                     
@@ -165,6 +179,7 @@
                     <tr>                                        
                     <td>{{i.title}}</td>
                     <td>{{i.author}}</td>
+                    <td>{{i.requestCount}}</td>
                     </tr>
                     {% endfor %}
                   </tbody>
@@ -179,6 +194,11 @@
               {% csrf_token %}
 
               <h5>My Book is not yet recommended</h5>
+               
+              <!-- Need to be fixed this  -->
+              <input hidden value="{{hiddenTitle}}" name="hiddenTitle1" type="text">
+              <!--  -->
+
               <button name="newBookRecommendation" value="newBookRecommendation" class="btn btn-primary">Recommend New Book</button>
             </form>
           </div>
@@ -191,6 +211,11 @@
               {% csrf_token %}
 
               <h5>No book with similar title is recommended yet</h5>
+               
+              <!-- Need to be fixed this  -->
+              <input hidden value="{{hiddenTitle}}" name="hiddenTitle1" type="text">
+              <!--  -->
+
               <button name="newBookRecommendation" value="newBookRecommendation" class="btn btn-primary"> Recommend New Book</button>
             </form>
           </div>
@@ -203,38 +228,47 @@
             {% csrf_token %}
 
             <div class="form-group row">
-              <label for="title" class="col-sm-2 col-form-label">Title</label>
+              <label for="newTitle" class="col-sm-2 col-form-label">Title</label>
               <div class="col-sm-10">
-                <input required name="newTitle" type="text" class="form-control" id="newTitle" placeholder="Digital Fortress">
+                <input required name="newTitle" type="text" class="form-control" id="newTitle" value="{{hiddenTitle1}}" placeholder="Digital Fortress">
               </div>
             </div>
 
             <div class="form-group row">
-              <label for="author" class="col-sm-2 col-form-label">Author</label>
+              <label for="newAuthor" class="col-sm-2 col-form-label">Author</label>
               <div class="col-sm-10">
                 <input required name="newAuthor" type="text" class="form-control" id="newAuthor" placeholder="D.Brown">
               </div>
             </div>
 
             <div class="form-group row">
-              <label for="category" class="col-sm-2 col-form-label">Category</label>
+              <label for="newCategory" class="col-sm-2 col-form-label">Category</label>
               <div class="col-sm-10">
                 <input required name="newCategory" type="text" class="form-control" id="newCategory" placeholder="Fiction">
               </div>
             </div>
 
             <div class="text-center">
-              <button class="btn btn-primary" type="submit" name="newBookSubmit">Submit</button>
-            </div>
-
+              <button class="btn btn-primary" value="newBookSubmit" name="newBookSubmit">Submit</button>
+            </div>                        
+            
           </form>
 
           {% endif %}
 
+          {% if newBookRecommended %}
+
+          <div class="text-center">
+            <h5>{{newAuthor}}</h5>
+            <h5>{{newTitle}}</h5>
+            <h5>{{newCategory}}</h5>            
+          </div>
+
+          {% endif %}
 
 
         </div>
-        <!-- /.container-fluid -->
+        <!-- /.container-fluid -->      
 
       </div>
       <!-- End of Main Content -->
