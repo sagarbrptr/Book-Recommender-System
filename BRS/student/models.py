@@ -80,3 +80,13 @@ class libraryRecommendation(models.Model):
     class Meta:
         db_table = 'libraryRecommendation'
         managed = False
+
+class bookRequest(models.Model):
+    srNo = models.IntegerField()
+    cardnumber = models.CharField(max_length = 14)
+    requestCount = models.IntegerField(default = 1)
+
+    class Meta:
+        db_table = 'bookRequest'
+        managed = False
+        unique_together = (('srNo', 'cardnumber'),)
