@@ -65,6 +65,8 @@ def recommendLibrary(request):
     newTitle = ""
     newAuthor = ""
     newCategory = ""
+    hiddenTitle = ""  # Needs to be fixed
+    hiddenTitle1 = "" # Needs to be fixed
     
     if request.POST.get('title'):
         searchBook = False
@@ -72,6 +74,7 @@ def recommendLibrary(request):
         checkRecommendedBooks = False
         newBookRecommendation = False
         newBookRecommended = False
+
         title = request.POST.get('title')                
 
         queryBooks = "select barcode, title from bt_map where title like '%" + title + "%' group by title;"
@@ -116,7 +119,10 @@ def recommendLibrary(request):
         checkRecommendedBooks = True
         newBookRecommendation = False
         newBookRecommended = False
-        query = "select srNo, bookTitle, author from libraryRecommendation where bookTitle like '%" + title + "%' group by bookTitle;"
+
+        hiddenTitle = request.POST.get("hiddenTitle") # hiddenTitle is temp, actually should be title 
+
+        query = "select srNo, bookTitle, author, requestCount from libraryRecommendation where bookTitle like '%" + hiddenTitle + "%' group by bookTitle;"
 
         print(query)
 
@@ -129,18 +135,20 @@ def recommendLibrary(request):
             temp["srNo"] = str(i[0])          
             temp["title"] = str(i[1])
             temp["author"] = str(i[2])
+            temp["requestCount"] = str(i[3])
 
             alreadyRecommendedResult.append(temp)
     
     if request.POST.get('newBookRecommendation'):
+
+        hiddenTitle1 = request.POST.get('hiddenTitle1')
+
         newBookRecommendation = True
         searchBook = False
         checkRecommendedBooks = False
-        newBookRecommended = False
+        newBookRecommendehiddenTitled = False
     
-    if request.POST.get('newBookSubmit'):
-
-        print("HEllo World")
+    if request.POST.get('newBookSubmit'):        
 
         newBookRecommendation = True
         searchBook = False
@@ -171,7 +179,10 @@ def recommendLibrary(request):
         'newTitle' : newTitle,
         'newAuthor' : newAuthor,
         'newCategory' : newCategory,
-        'newBookRecommended' : newBookRecommended
+        'newBookRecommended' : newBookRecommended,
+        'title' : title,
+        'hiddenTitle' : hiddenTitle,     # Needs to be fixed
+        'hiddenTitle1' : hiddenTitle1
         }
         
     cursor.close()
