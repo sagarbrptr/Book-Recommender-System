@@ -179,7 +179,16 @@
                     <tr>                                        
                     <td>{{i.title}}</td>
                     <td>{{i.author}}</td>
-                    <td>{{i.requestCount}}</td>
+                    <td>
+                      <span style="float: left ;">{{i.requestCount}}</span> 
+                      <form method="POST">
+                        {% csrf_token %}                      
+                        <button value="{{i.srNo}}" name="increaseRequestCount" title="Request this book" 
+                        style="float: right; cursor: pointer; background: none; padding: 0; border: none;">
+                            <i class="fas fa-plus" aria-hidden="true"></i>
+                        </button>
+                      </form>
+                    </td>
                     </tr>
                     {% endfor %}
                   </tbody>
@@ -254,24 +263,17 @@
             
           </form>
 
-          {% endif %}
+          {% endif %}          
 
-          {% if newBookRecommended %}
+          {% if successMsg %}
+            <div class="alert alert-success" role="alert">
+              {{successMsg}}
+            </div>
 
-            <div class="text-center">
-              <h5>{{newTitle}}</h5>
-              <h5>{{newAuthor}}</h5>
-              <h5>{{newCategory}}</h5>            
-            
-
-            {% if not newRequest and alreadyRequested %}
-
-              <div>
-                <h5>You have already requested this book</h5>
-              </div>
-
-            {% endif %}
-          </div>
+          {% elif failMsg %}
+            <div class="alert alert-secondary" role="alert">
+              {{failMsg}}
+            </div>
 
           {% endif %}
 

@@ -69,6 +69,8 @@ def recommendLibrary(request):
     hiddenTitle1 = "" # Needs to be fixed
     newRequest = "False"
     alreadyRequested = "False"
+    successMsg = ""
+    failMsg = ""
     
     if request.POST.get('title'):
         searchBook = False
@@ -196,9 +198,10 @@ def recommendLibrary(request):
             getSrNo = "select max(srNo) from libraryRecommendation ;" 
             
             try:
-                cursor.execute(getSrNo)
+                cursor.execute(getSrNo)                
     
             except mysql.connector.Error as err:
+                print("Error in getting serial no from libraryRecommendation")
                 print(err)
                 print("Error Code:", err.errno)
                 print("SQLSTATE", err.sqlstate)
@@ -211,14 +214,17 @@ def recommendLibrary(request):
             insertQuery = "insert into bookRequest (srNo, cardnumber) values ('" + str(srNo[0][0]) + "', 'I2K16102102');"
 
             try :
-                cursor.execute(insertQuery)
+                cursor.execute(insertQuery)                                
             
             except:         # User has already requested book
                 print("Already Voted")
                 alreadyRequested = True
                 newRequest = False
+                failMsg = "You have already requested for this book"
+            
 
-
+            if not failMsg:
+                successMsg = "New Book Recommended"
 
         
         else :  # else update                        
@@ -233,6 +239,8 @@ def recommendLibrary(request):
                 print("Already Voted")
                 alreadyRequested = True
                 newRequest = False
+                failMsg = "You have already requested for this book"
+
             
             if not alreadyRequested:   #Update requestCount (Has a scope of trigger)
                 updateQuery = "update libraryRecommendation set requestCount = requestCount + 1 where bookTitle = '" + newTitle + "' and author = '" + newAuthor + "';" 
@@ -244,9 +252,47 @@ def recommendLibrary(request):
                     print("Error Code:", err.errno)
                     print("SQLSTATE", err.sqlstate)
                     print("Message", err.msg)
-                    return sqlError(err) 
-             
+                    return sqlError(err)
+            
+            if not failMsg:
+                successMsg = "New Book Recommended"
+            
+            
+
+    if request.POST.get("increaseRequestCount"):        
+
+        alreadyRequested = False
+        newRequest = True
+        newBookRecommended = True
+
+        srNo = request.POST.get("increaseRequestCount")
+        insertQuery = "insert into bookRequest (srNo, cardnumber) values ('" + srNo + "', 'I2K16102102');"
         
+        try:
+            cursor.execute(insertQuery)
+        
+        except:         # User has already requested book
+            print("Already Voted")
+            alreadyRequested = True
+            newRequest = False
+            failMsg = "You have already requested for this book"
+
+        
+        if not alreadyRequested:   #Update requestCount (Has a scope of trigger)            
+            updateQuery = "update libraryRecommendation set requestCount = requestCount + 1 where srNo = '" + srNo + "';" 
+            try:
+                cursor.execute(updateQuery)
+                print(updateQuery)
+    
+            except mysql.connector.Error as err:
+                print(err)
+                print("Error Code:", err.errno)
+                print("SQLSTATE", err.sqlstate)
+                print("Message", err.msg)
+                return sqlError(err)
+        
+        if not failMsg:
+                successMsg = "New Book Recommended"
         
 
     context = {
@@ -263,6 +309,8 @@ def recommendLibrary(request):
         'title' : title,
         'alreadyRequested' : alreadyRequested,
         'newRequest' : newRequest,
+        'failMsg' : failMsg,
+        'successMsg' : successMsg,
         'hiddenTitle' : hiddenTitle,     # Needs to be fixed
         'hiddenTitle1' : hiddenTitle1
         }
