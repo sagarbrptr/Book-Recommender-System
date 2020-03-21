@@ -158,6 +158,7 @@ def recommendLibrary(request):
         searchBook = False
         checkRecommendedBooks = False
         newBookRecommended = True
+        alreadyRequested = False
 
         newTitle = str(request.POST.get('newTitle')).lower()
         newAuthor = str(request.POST.get('newAuthor')).lower()
@@ -191,7 +192,23 @@ def recommendLibrary(request):
             recommend.save()
 
             # Insert into bookRequest also
-            # insertQuery = "insert into bookRequest (srNo, cardnumber) values ('" + str(row[0][0]) + "', I2K16102102');"
+
+            getSrNo = "select max(srNo) from libraryRecommendation ;" 
+            
+            try:
+                cursor.execute(getSrNo)
+    
+            except mysql.connector.Error as err:
+                print(err)
+                print("Error Code:", err.errno)
+                print("SQLSTATE", err.sqlstate)
+                print("Message", err.msg)
+                return sqlError(err)
+            
+            srNo = cursor.fetchall()
+
+            print(str(srNo[0][0]))
+            insertQuery = "insert into bookRequest (srNo, cardnumber) values ('" + str(srNo[0][0]) + "', 'I2K16102102');"
 
             try :
                 cursor.execute(insertQuery)
@@ -207,7 +224,7 @@ def recommendLibrary(request):
         else :  # else update                        
 
             # Insert vote in bookRequest table cardnumber needed
-            insertQuery = "insert into bookRequest (srNo, cardnumber) values ('" + str(row[0][0]) + "', I2K16102102');"
+            insertQuery = "insert into bookRequest (srNo, cardnumber) values ('" + str(row[0][0]) + "', 'I2K16102102');"
 
             try:
                 cursor.execute(insertQuery)
