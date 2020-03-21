@@ -82,7 +82,7 @@ class libraryRecommendation(models.Model):
         managed = False
 
 class bookRequest(models.Model):
-    srNo = models.IntegerField()
+    srNo = models.AutoField(primary_key = True)
     cardnumber = models.CharField(max_length = 14)
     requestCount = models.IntegerField(default = 1)
 

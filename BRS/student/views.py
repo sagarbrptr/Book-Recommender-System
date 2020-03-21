@@ -5,7 +5,7 @@ from django.shortcuts import render, render_to_response
 from django.http import HttpResponse
 import mysql.connector 
 from django.template import RequestContext
-from student.models import libraryRecommendation
+from student.models import *
 
 
 def sqlError(err):
@@ -67,6 +67,8 @@ def recommendLibrary(request):
     newCategory = ""
     hiddenTitle = ""  # Needs to be fixed
     hiddenTitle1 = "" # Needs to be fixed
+    newRequest = "False"
+    alreadyRequested = "False"
     
     if request.POST.get('title'):
         searchBook = False
@@ -148,26 +150,87 @@ def recommendLibrary(request):
         checkRecommendedBooks = False
         newBookRecommendehiddenTitled = False
     
-    if request.POST.get('newBookSubmit'):        
+    if request.POST.get('newBookSubmit'): 
+
+        userCardnumber = "I2K16102102"       
 
         newBookRecommendation = True
         searchBook = False
         checkRecommendedBooks = False
         newBookRecommended = True
 
-        newTitle = request.POST.get('newTitle')
-        newAuthor = request.POST.get('newAuthor')
-        newCategory = request.POST.get('newCategory')
+        newTitle = str(request.POST.get('newTitle')).lower()
+        newAuthor = str(request.POST.get('newAuthor')).lower()
+        newCategory = str(request.POST.get('newCategory')).lower()
 
         print(newTitle)
         print(newAuthor)
         print(newCategory)
 
-        recommend = libraryRecommendation.objects.create(bookTitle = str(newTitle),
-                                                         author = str(newAuthor),
-                                                         category = str(newCategory),
+        #check if same author and title already exists 
+        query = "select * from libraryRecommendation where bookTitle = '" + newTitle + "' and author = '" + newAuthor + "';" 
+        
+        try:
+            cursor.execute(query)
+    
+        except mysql.connector.Error as err:
+            print(err)
+            print("Error Code:", err.errno)
+            print("SQLSTATE", err.sqlstate)
+            print("Message", err.msg)
+            return sqlError(err) 
+
+        row = cursor.fetchall()
+
+        if not len(row):    # if does not exist insert
+            newRequest = True
+            recommend = libraryRecommendation.objects.create(bookTitle = newTitle,
+                                                         author = newAuthor,
+                                                         category = newCategory,
                                                          requestCount = 1)
-        recommend.save()
+            recommend.save()
+
+            # Insert into bookRequest also
+            # insertQuery = "insert into bookRequest (srNo, cardnumber) values ('" + str(row[0][0]) + "', I2K16102102');"
+
+            try :
+                cursor.execute(insertQuery)
+            
+            except:         # User has already requested book
+                print("Already Voted")
+                alreadyRequested = True
+                newRequest = False
+
+
+
+        
+        else :  # else update                        
+
+            # Insert vote in bookRequest table cardnumber needed
+            insertQuery = "insert into bookRequest (srNo, cardnumber) values ('" + str(row[0][0]) + "', I2K16102102');"
+
+            try:
+                cursor.execute(insertQuery)
+            
+            except:         # User has already requested book
+                print("Already Voted")
+                alreadyRequested = True
+                newRequest = False
+            
+            if not alreadyRequested:   #Update requestCount (Has a scope of trigger)
+                updateQuery = "update libraryRecommendation set requestCount = requestCount + 1 where bookTitle = '" + newTitle + "' and author = '" + newAuthor + "';" 
+                try:
+                    cursor.execute(updateQuery)
+        
+                except mysql.connector.Error as err:
+                    print(err)
+                    print("Error Code:", err.errno)
+                    print("SQLSTATE", err.sqlstate)
+                    print("Message", err.msg)
+                    return sqlError(err) 
+             
+        
+        
 
     context = {
         'searchBook' : searchBook,
@@ -181,6 +244,8 @@ def recommendLibrary(request):
         'newCategory' : newCategory,
         'newBookRecommended' : newBookRecommended,
         'title' : title,
+        'alreadyRequested' : alreadyRequested,
+        'newRequest' : newRequest,
         'hiddenTitle' : hiddenTitle,     # Needs to be fixed
         'hiddenTitle1' : hiddenTitle1
         }
