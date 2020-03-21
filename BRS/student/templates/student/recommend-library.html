@@ -258,10 +258,19 @@
 
           {% if newBookRecommended %}
 
-          <div class="text-center">
-            <h5>{{newAuthor}}</h5>
-            <h5>{{newTitle}}</h5>
-            <h5>{{newCategory}}</h5>            
+            <div class="text-center">
+              <h5>{{newAuthor}}</h5>
+              <h5>{{newTitle}}</h5>
+              <h5>{{newCategory}}</h5>            
+            
+
+            {% if not newRequest and alreadyRequested %}
+
+              <div>
+                <h5>You have already requested this book</h5>
+              </div>
+
+            {% endif %}
           </div>
 
           {% endif %}
