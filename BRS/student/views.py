@@ -49,7 +49,7 @@ def home(request):
     context = {'result' : result}
     cursor.close()
     connection.close()
-    return render(request, 'student/tables.html', context)
+    return render(request, 'student/issue-history.html', context)
 
 def recommendLibrary(request):
     cursor = connection.cursor()
