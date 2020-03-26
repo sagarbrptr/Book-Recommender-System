@@ -8,4 +8,4 @@ from django.template import RequestContext
 from student.models import *
 
 def librarianHome(request):
-    return HttpResponse("<h1> Librarian Works </h1>")
+    return render(request,'librarian-dashboard.html')
