@@ -30,7 +30,7 @@ def home(request):
         return sqlError(err)
 
 
-    row = cursor.fetchall()   
+    row = cursor.fetchall() 
 
     if not len(row):
         return HttpResponse("No books issued")
@@ -43,10 +43,26 @@ def home(request):
         temp["title"] = str(i[0])
         temp["barcode"] = str(i[1])
         temp["DATE"] = str(i[2])
-
+        
+        query_get_rating = "select rating,valid from ratings where barcode = (select bt.barcode from bt_map bt where bt.title ='"+ temp["title"]  + "' limit 1) and cardnumber = 123;" 
+        
+        try:
+            cursor.execute(query_get_rating)
+    
+        except mysql.connector.Error as err:
+            print(err)
+            print("Error Code:", err.errno)
+            print("SQLSTATE", err.sqlstate)
+            print("Message", err.msg)
+            return sqlError(err)
+        
+        res = cursor.fetchone()
+        temp["rating"] = res[0]
+        temp["valid"] = res[1]
         result.append(temp)
 
     context = {'result' : result}
+    
     cursor.close()
     connection.close()
     return render(request, 'student/tables.html', context)
