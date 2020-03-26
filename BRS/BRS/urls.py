@@ -1,13 +1,16 @@
 
 from django.conf.urls import url
 from django.contrib import admin
-from student import views
 from django.contrib.staticfiles.urls import staticfiles_urlpatterns
+
+from student import views as studentView
+from librarian import views as librarianView
 
 urlpatterns = [
     url(r'^admin/', admin.site.urls),
-    url(r'^$', views.home, name = "studentHome"),
-    url(r'^recommendLibrary$', views.recommendLibrary, name = "recommendLibrary")
+    url(r'^$', studentView.home, name = "studentHome"),
+    url(r'^recommendLibrary$', studentView.recommendLibrary, name = "recommendLibrary"),
+    url(r'^librarian$', librarianView.librarianHome, name = "librarianHome")
 ]
 
 urlpatterns += staticfiles_urlpatterns()
