@@ -8,10 +8,57 @@
 
         <!-- Begin Page Content -->
         <div class="container-fuild">
-            <h1>Works</h1>
+        
+          
+        {% if recommendedBook|length %}            
 
+          <!-- DataTales Example -->
+          <div class="card shadow mb-4">
+            <div class="card-header py-3">
+              <h1 class="h3 mb-2 text-gray-800">Recommendations for library </h1>
+          <p class="mb-4">Recommendations are based user request.</p>
+              <h6 class="m-0 font-weight-bold text-primary">Search using search bar for specific results</h6>
+            </div>
+            <div class="card-body">
+              <div class="table-responsive">
+                <table class="table table-bordered" id="dataTable" width="100%" cellspacing="0">
+                  <thead>
+                    <tr>
+                      <th>Book Title </th>
+                      <th>Author Name</th> 
+                      <th>Number of Request</th>                 
+                    </tr>
+                  </thead>
+                  <tfoot>
+                    <tr>
+                      <th>Book Title </th>
+                      <th>Author Name</th>
+                      <th>Number of Request</th>                 
+                    </tr>
+                  </tfoot>
+                  <tbody>    
+                    {% for i in recommendedBook %}                                 
+                    <tr>
+                    <td>{{i.title}}</td>
+                    <td>{{i.author}}</td> 
+                    <td>{{i.requestCount}}</td>               
+                    </tr>
+                    {% endfor %}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
 
-        </div>
+          {% else %}
+
+          <div class="text-center">
+            <h5>No book Recommended yet</h5>
+          </div>
+
+          {% endif %}
+  
+          </div>        
         <!-- /.container-fluid -->
 
     </div>
@@ -57,4 +104,10 @@
         </div>
     </div>
 </div>
+
+<script>
+  $('#dataTable').dataTable( {
+  "ordering": false
+} );
+</script>
 {% endblock %}
