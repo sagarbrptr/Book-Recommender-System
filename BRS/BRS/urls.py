@@ -13,7 +13,9 @@ urlpatterns = [
     url(r'^studentRecommendation$', studentView.studentRecommendation, name = "studentRecommendation"),
 
     
-    url(r'^librarian$', librarianView.librarianHome, name = "librarianHome")
-]
+    url(r'^librarianHome$', librarianView.librarianHome, name = "librarianHome"),
+    url(r'^librarianRecommendation$', librarianView.librarianRecommendation, name = "librarianRecommendation"),
+    url(r'^librarianStatistics$', librarianView.librarianStatistics, name = "librarianStatistics"),
+    ]
 
 urlpatterns += staticfiles_urlpatterns()

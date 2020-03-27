@@ -8,4 +8,10 @@ from django.template import RequestContext
 from student.models import *
 
 def librarianHome(request):
-    return render(request,'librarian-dashboard.html')
+    return render(request,'librarian/librarian-home.html')
+
+def librarianRecommendation(request):
+    return render(request,'librarian/librarian-recommendation.html')
+
+def librarianStatistics(request):
+    return render(request,'librarian/librarian-statistics.html')
