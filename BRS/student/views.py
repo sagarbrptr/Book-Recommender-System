@@ -334,3 +334,12 @@ def recommendLibrary(request):
     cursor.close()
     connection.close()
     return render(request, 'student/recommend-library.html', context)
+
+def studentRecommendation(request):
+
+    result = []
+
+    context = {
+        'result' : result
+    }
+    return render(request, 'student/recommend-student.html', context)
