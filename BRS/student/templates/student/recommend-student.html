@@ -16,8 +16,8 @@
         <div class="container-fluid">
 
           <!-- Page Heading -->
-          <h1 class="h3 mb-2 text-gray-800">Issue History </h1>
-          <p class="mb-4">Issue history till one year<a target="_blank" href="https://datatables.net">official DataTables documentation</a>.</p>
+          <h1 class="h3 mb-2 text-gray-800">Recommendations for you </h1>
+          <p class="mb-4">Recommendations are based ratings given by users.</p>
 
           <!-- DataTales Example -->
           <div class="card shadow mb-4">
@@ -29,33 +29,21 @@
                 <table class="table table-bordered" id="dataTable" width="100%" cellspacing="0">
                   <thead>
                     <tr>
-                      <th>Date of issue</th>
                       <th>Barcode </th>
-                      <th>Book Name</th>   
-                      <th>Ratings</th>                   
+                      <th>Book Name</th>                  
                     </tr>
                   </thead>
                   <tfoot>
                     <tr>
-                      <th>Date of issue</th>
                       <th>Barcode </th>
                       <th>Book Name</th>
-                      <th>Ratings</th>
                     </tr>
                   </tfoot>
                   <tbody>                                     
-                    {% for i in result %}
                     <tr>
-                    <td>{{i.DATE}}</td>
-                    <td>{{i.barcode}}</td>
-                    <td>{{i.title}}</td>
-                    {% if i.valid %}
-                      <td>{{i.rating}}</td>
-                    {% else %}
-                      <td>Not Rated yet</td>
-                    {% endif %}
+                    <td></td>
+                    <td></td>                
                     </tr>
-                    {% endfor %}
                   </tbody>
                 </table>
               </div>

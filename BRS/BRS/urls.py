@@ -10,6 +10,9 @@ urlpatterns = [
     url(r'^admin/', admin.site.urls),
     url(r'^$', studentView.home, name = "studentHome"),
     url(r'^recommendLibrary$', studentView.recommendLibrary, name = "recommendLibrary"),
+    url(r'^studentRecommendation$', studentView.studentRecommendation, name = "studentRecommendation"),
+
+    
     url(r'^librarian$', librarianView.librarianHome, name = "librarianHome")
 ]
 
