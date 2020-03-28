@@ -43,21 +43,21 @@
 
 
       <!-- Nav Item - Pages Collapse Menu -->      
-      <li class="nav-item">
+      <li class="nav-item {% if request.path == '/librarianHome' %} active {% endif %}">
         <a class="nav-link {% if request.path == '/librarianHome' %} sidebar-active {% endif %}" href="/librarianHome">
           <i class="fas fa-cog"></i>
           <span>Inventory</span>
         </a>
       </li>
 
-      <li class="nav-item">
+      <li class="nav-item {% if request.path == '/librarianRecommendation' %} active {% endif %}">
         <a class="nav-link {% if request.path == '/librarianRecommendation' %} sidebar-active {% endif %}" {% if request.path == '/librarianRecommendation' %} id="sidebar-active" {% endif %} href="/librarianRecommendation">
           <i class="fas fa-fw fa-chart-area"></i>
           <span>Recommendations</span></a>
       </li>
 
-      <li class="nav-item">
-        <a class="nav-link {% if request.path == '/librarianStatistics' %} sidebar-active {% endif %}"" href="/librarianStatistics">
+      <li class="nav-item {% if request.path == '/librarianStatistics' %} active {% endif %}">
+        <a class="nav-link {% if request.path == '/librarianStatistics' %} sidebar-active {% endif %}" href="/librarianStatistics">
           <i class="fas fa-chart-bar"></i>
           <span>Statistics</span></a>
       </li>
