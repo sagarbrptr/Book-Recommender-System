@@ -43,7 +43,31 @@ class DB:
     
 
 def librarianHome(request):
-    return render(request,'librarian/librarian-home.html')
+
+    insertSuccessful = False
+    insertFormSubmitted = False
+
+    if request.POST.get("newBookSubmit"):
+        newBarocde = request.POST.get("newBarocde")
+        newTitle = request.POST.get("newTitle")
+        newAuthor = request.POST.get("newAuthor")
+        newSubject = request.POST.get("newSubject")
+
+        database = DB()
+        insertFormSubmitted = True
+
+        submitQuery = "Insert into books values('" + newBarocde + "', curdate(), '" + newTitle + "', '" + newAuthor + "', '" + newSubject + "');"
+        errorMsg = "Error in inserting in books"
+        print(submitQuery)        
+
+        insertSuccessful = database.insertOrUpdateOrDelete(submitQuery, errorMsg)
+    
+    context = {
+        "insertSuccessful" : insertSuccessful,
+        "insertFormSubmitted" : insertFormSubmitted,
+    }
+
+    return render(request,'librarian/librarian-home.html', context)
 
 def librarianRecommendation(request):
     recommendedBook = []    
