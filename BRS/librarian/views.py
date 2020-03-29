@@ -46,6 +46,9 @@ def librarianHome(request):
 
     insertSuccessful = False
     insertFormSubmitted = False
+    deleteFormSubmitted = False
+    deleteSuccessful = False
+    deletionErrorMsg = "Error in deleting book"
 
     if request.POST.get("newBookSubmit"):
         newBarocde = request.POST.get("newBarocde")
@@ -58,13 +61,41 @@ def librarianHome(request):
 
         submitQuery = "Insert into books values('" + newBarocde + "', curdate(), '" + newTitle + "', '" + newAuthor + "', '" + newSubject + "');"
         errorMsg = "Error in inserting in books"
-        print(submitQuery)        
+        #print(submitQuery)        
 
         insertSuccessful = database.insertOrUpdateOrDelete(submitQuery, errorMsg)
+    
+    if request.POST.get("deleteBookSubmit"):
+        deleteFormSubmitted = True
+        deleteBarocde = request.POST.get("deleteBarocde")
+
+        database = DB()
+
+        selectQuery = "select * from books where barcode = '" + deleteBarocde + "';"
+        errorMsg = "Error in selecting from books"
+        print(selectQuery)
+
+        if database.select(selectQuery, errorMsg):  # If there exists row, insert in deletedBooks
+            insertQuery = "insert into deletedBooks select * from books where barcode = '" + deleteBarocde + "';"
+            errorMsg = "Error in inserting in deletedBooks"
+            print(insertQuery)
+
+            if database.insertOrUpdateOrDelete(insertQuery, errorMsg):  #If Successful delete from books
+                deleteQuery = "delete from books where barcode = '" + deleteBarocde + "';"
+                errorMsg = "Error in deleting from Books"
+                print(deleteQuery)
+
+                deleteSuccessful = database.insertOrUpdateOrDelete(deleteQuery, errorMsg)                        
+        
+        else:   # Else book does not exists
+            deletionErrorMsg = "Book with given barcode does not exists or is already deleted"
     
     context = {
         "insertSuccessful" : insertSuccessful,
         "insertFormSubmitted" : insertFormSubmitted,
+        "deleteFormSubmitted" : deleteFormSubmitted,
+        "deleteSuccessful" : deleteSuccessful,
+        "deletionErrorMsg" : deletionErrorMsg,
     }
 
     return render(request,'librarian/librarian-home.html', context)

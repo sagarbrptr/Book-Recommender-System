@@ -90,3 +90,14 @@ class bookRequest(models.Model):
         db_table = 'bookRequest'
         managed = False
         unique_together = (('srNo', 'cardnumber'),)
+
+class deletedBooks(models.Model):
+    barcode = models.CharField(max_length = 8, primary_key = True)
+    dateaccessioned = models.DateField()
+    title = models.CharField(max_length = 105)
+    author = models.CharField(max_length = 43)
+    Subject = models.CharField(max_length = 35)
+
+    class Meta:
+        db_table = 'deletedBooks'
+        managed = False

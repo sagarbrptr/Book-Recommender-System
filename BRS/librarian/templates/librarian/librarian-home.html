@@ -20,7 +20,7 @@
                         {% csrf_token %}
 
                         <div class="form-group row">
-                            <label for="newTitle" class="col-sm-2 col-form-label">Barcode</label>
+                            <label for="newBarcode" class="col-sm-2 col-form-label">Barcode</label>
                             <div class="col-sm-10">
                                 <input required name="newBarocde" type="text" class="form-control" id="newBarocde"
                                     placeholder="1111001">
@@ -66,7 +66,45 @@
 
             {% elif insertFormSubmitted and not insertSuccessful %}
             <div class="alert alert-secondary" role="alert">
-                Error in inserting in books
+                Error in inserting book
+            </div>
+
+            {% endif %}
+
+            <div class="card">
+                <div class="card-body border border-danger mt-5 ml-3 mr-3">
+
+                    <div class="text-center mb-2">
+                        Delete Book From Inventory
+                    </div>
+
+                    <form method="POST">
+                        {% csrf_token %}
+
+                        <div class="form-group row">
+                            <label for="deleteBarocde" class="col-sm-2 col-form-label">Barcode</label>
+                            <div class="col-sm-10">
+                                <input required name="deleteBarocde" type="text" class="form-control" id="deleteBarocde"
+                                    placeholder="1111001">
+                            </div>
+                        </div>                        
+
+                        <div class="text-center">
+                            <button class="btn btn-danger" value="deleteBookSubmit" name="deleteBookSubmit">Delete</button>
+                        </div>
+
+                    </form>
+                </div>
+            </div>
+
+            {% if deleteFormSubmitted and deleteSuccessful %}
+            <div class="alert alert-danger" role="alert">
+                Book Deleted Successfully
+            </div>
+
+            {% elif deleteFormSubmitted and not deleteSuccessful %}
+            <div class="alert alert-secondary" role="alert">
+                {{deletionErrorMsg}}
             </div>
 
             {% endif %}
