@@ -19,6 +19,12 @@
           <h1 class="h3 mb-2 text-gray-800">Issue History </h1>
           <p class="mb-4">Issue history till one year</p>
 
+          {% if noBookIssued %}
+            You have not issued any books in last year.<br>
+            Issue a book to see issue history
+          {% endif %}
+
+          {% if not noBookIssued %}
           <!-- DataTales Example -->
           <div class="card shadow mb-4">
             <div class="card-header py-3">
@@ -61,6 +67,7 @@
               </div>
             </div>
           </div>
+          {% endif %}
 
         </div>
         <!-- /.container-fluid -->

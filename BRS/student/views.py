@@ -7,33 +7,57 @@ import mysql.connector
 from django.template import RequestContext
 from student.models import *
 
+class DB:    
+    
+    def __init__(self): 
+        self.cursor = connection.cursor()
+    
+    def __del__(self):
+        self.cursor.close()
+        connection.close()
+
+        
+    
+    def select(self, query, errorMsg):
+        try:
+            self.cursor.execute(query)
+        
+        except:
+            print(errorMsg)
+            return False
+        
+        row = self.cursor.fetchall()
+        return row
+    
+    def insertOrUpdateOrDelete(self, query, errorMsg):
+        try:
+            self.cursor.execute(query)
+        except:
+            print(errorMsg)
+            return False
+        
+        return True
+  
 
 def sqlError(err):
     response = render_to_response('404.html', {}, context_instance=RequestContext(err))
     response.status_code = 404
     return response
 
-def home(request):
-    cursor = connection.cursor()
+def home(request):    
+    database = DB()        
 
     books_db = "select distinct b.title, b.barcode, t.DATE from books_db as b, transaction as t where b.barcode = t.barcode and t.cardnumber = '123' group by title;"
     query = "select distinct b.title, b.barcode, t.DATE " + "from books as b, transaction as t" +" where b.barcode = t.barcode and t.cardnumber = '123' group by title union all " + books_db
-    
-    try:
-        cursor.execute(query)
-    
-    except mysql.connector.Error as err:
-        print(err)
-        print("Error Code:", err.errno)
-        print("SQLSTATE", err.sqlstate)
-        print("Message", err.msg)
-        return sqlError(err)
+    errorMsg = "Error in selecting from books_db or books"    
 
+    row = database.select(query, errorMsg) 
 
-    row = cursor.fetchall() 
-
-    if not len(row):
-        return HttpResponse("No books issued")
+    if not len(row):     # If no book is issued, return           
+        context = {
+            'noBookIssued' : True
+        }
+        return render(request, 'student/issue-history.html', context)
 
     result = []
 
@@ -45,26 +69,20 @@ def home(request):
         temp["DATE"] = str(i[2])
         
         query_get_rating = "select rating,valid from ratings where barcode = (select bt.barcode from bt_map bt where bt.title ='"+ temp["title"]  + "' limit 1) and cardnumber = 123;" 
-        
-        try:
-            cursor.execute(query_get_rating)
-    
-        except mysql.connector.Error as err:
-            print(err)
-            print("Error Code:", err.errno)
-            print("SQLSTATE", err.sqlstate)
-            print("Message", err.msg)
-            return sqlError(err)
-        
-        res = cursor.fetchone()
-        temp["rating"] = res[0]
-        temp["valid"] = res[1]
+        errorMsg = "Error in selecting rating from ratings"        
+
+        res = database.select(query_get_rating, errorMsg)
+
+        temp["rating"] = res[0][0]
+        temp["valid"] = res[0][1]
+
         result.append(temp)
 
-    context = {'result' : result}
+    context = {
+        'noBookIssued' : False,
+        'result' : result
+    }
     
-    cursor.close()
-    connection.close()
     return render(request, 'student/issue-history.html', context)
 
 def recommendLibrary(request):
