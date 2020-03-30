@@ -105,29 +105,22 @@ def recommendLibrary(request):
     alreadyRequested = "False"
     successMsg = ""
     failMsg = ""
+
+    database = DB()
     
     if request.POST.get('title'):
         searchBook = False
         blankSearch = False
         checkRecommendedBooks = False
         newBookRecommendation = False
-        newBookRecommended = False
+        newBookRecommended = False        
 
         title = request.POST.get('title')                
 
         queryBooks = "select barcode, title from bt_map where title like '%" + title + "%' group by title;"
+        errorMsg = "Error in selecting from bt_map"                  
 
-        try:
-            cursor.execute(queryBooks)
-    
-        except mysql.connector.Error as err:
-            print(err)
-            print("Error Code:", err.errno)
-            print("SQLSTATE", err.sqlstate)
-            print("Message", err.msg)
-            return sqlError(err) 
-
-        row = cursor.fetchall()        
+        row = database.select(queryBooks, errorMsg)
         
         for i in row:
 
@@ -140,15 +133,14 @@ def recommendLibrary(request):
             
             else:
                 queryAuthor = "select author from books where barcode = '" + temp['barcode'] + "' ;"
-            
-            cursor.execute(queryAuthor)
-            author = cursor.fetchone()
+            errorMsg = "Error in selecting author from books_db or books"
 
+            author = database.select(queryAuthor, errorMsg)
             if not len(author):
                 temp['author'] = "Not Available"
             
             else:
-                temp['author'] = str(author[0])
+                temp['author'] = str(author[0][0])
 
             libraryResult.append(temp)
     
@@ -161,11 +153,9 @@ def recommendLibrary(request):
         hiddenTitle = request.POST.get("hiddenTitle") # hiddenTitle is temp, actually should be title 
 
         query = "select srNo, bookTitle, author, requestCount from libraryRecommendation where bookTitle like '%" + hiddenTitle + "%' group by bookTitle;"
+        errorMsg = "error in selecting from libraryRecommendation"        
 
-        print(query)
-
-        cursor.execute(query)
-        row = cursor.fetchall()
+        row = database.select(query, errorMsg)
 
         for i in row:
 
@@ -200,26 +190,13 @@ def recommendLibrary(request):
         newAuthor = str(request.POST.get('newAuthor')).lower()
         newCategory = str(request.POST.get('newCategory')).lower()
 
-        print(newTitle)
-        print(newAuthor)
-        print(newCategory)
-
         #check if same author and title already exists 
         query = "select * from libraryRecommendation where bookTitle = '" + newTitle + "' and author = '" + newAuthor + "';" 
-        
-        try:
-            cursor.execute(query)
-    
-        except mysql.connector.Error as err:
-            print(err)
-            print("Error Code:", err.errno)
-            print("SQLSTATE", err.sqlstate)
-            print("Message", err.msg)
-            return sqlError(err) 
+        errorMsg = "Error in selecting in libraryRecommendation"        
 
-        row = cursor.fetchall()
+        row = database.select(query, errorMsg)
 
-        if not len(row):    # if does not exist insert
+        if not len(row):    # if does not exist, insert
             newRequest = True
             recommend = libraryRecommendation.objects.create(bookTitle = newTitle,
                                                          author = newAuthor,
@@ -230,32 +207,21 @@ def recommendLibrary(request):
             # Insert into bookRequest also
 
             getSrNo = "select max(srNo) from libraryRecommendation ;" 
-            
-            try:
-                cursor.execute(getSrNo)                
-    
-            except mysql.connector.Error as err:
-                print("Error in getting serial no from libraryRecommendation")
-                print(err)
-                print("Error Code:", err.errno)
-                print("SQLSTATE", err.sqlstate)
-                print("Message", err.msg)
-                return sqlError(err)
-            
-            srNo = cursor.fetchall()
+            errorMsg = "Error in selecting max srNo from libraryRecommendation"
 
-            print(str(srNo[0][0]))
-            insertQuery = "insert into bookRequest (srNo, cardnumber) values ('" + str(srNo[0][0]) + "', 'I2K16102102');"
+            srNo = database.select(getSrNo, errorMsg)
+            # print(str(srNo[0][0]))
 
-            try :
-                cursor.execute(insertQuery)                                
-            
-            except:         # User has already requested book
-                print("Already Voted")
+            #Insert into bookRequest, denoting user has requested for book
+            insertQuery = "insert into bookRequest (srNo, cardnumber) values ('" + str(srNo[0][0]) + "', '" + userCardnumber + "');"
+            errorMsg = "Error in inserting bookRequest"            
+
+            insertSuccessful = database.insertOrUpdateOrDelete(insertQuery, errorMsg)
+
+            if not insertSuccessful:
                 alreadyRequested = True
                 newRequest = False
-                failMsg = "You have already requested for this book"
-            
+                failMsg = "You have already requested for this book"            
 
             if not failMsg:
                 successMsg = "New Book Recommended"
@@ -264,29 +230,26 @@ def recommendLibrary(request):
         else :  # else update                        
 
             # Insert vote in bookRequest table cardnumber needed
-            insertQuery = "insert into bookRequest (srNo, cardnumber) values ('" + str(row[0][0]) + "', 'I2K16102102');"
+            insertQuery = "insert into bookRequest (srNo, cardnumber) values ('" + str(row[0][0]) + "', '" + userCardnumber + "');"
+            errorMsg = "Error in inserting bookRequest"            
 
-            try:
-                cursor.execute(insertQuery)
-            
-            except:         # User has already requested book
-                print("Already Voted")
+            insertSuccessful = database.insertOrUpdateOrDelete(insertQuery, errorMsg)
+
+            if not insertSuccessful:
                 alreadyRequested = True
                 newRequest = False
-                failMsg = "You have already requested for this book"
+                failMsg = "You have already requested for this book"            
+
 
             
-            if not alreadyRequested:   #Update requestCount (Has a scope of trigger)
+            if not alreadyRequested:   #Update requestCount
                 updateQuery = "update libraryRecommendation set requestCount = requestCount + 1 where bookTitle = '" + newTitle + "' and author = '" + newAuthor + "';" 
-                try:
-                    cursor.execute(updateQuery)
-        
-                except mysql.connector.Error as err:
-                    print(err)
-                    print("Error Code:", err.errno)
-                    print("SQLSTATE", err.sqlstate)
-                    print("Message", err.msg)
-                    return sqlError(err)
+                errorMsg = "Error in updating libraryRecommndation"
+
+                updateSucessful = database.insertOrUpdateOrDelete(updateQuery, errorMsg)
+
+                if not updateSucessful:
+                    failMsg = "Error in updating requestCount"
             
             if not failMsg:
                 successMsg = "New Book Recommended"
@@ -295,39 +258,37 @@ def recommendLibrary(request):
 
     if request.POST.get("increaseRequestCount"):        
 
+        userCardnumber = "I2K16102102"
+
         alreadyRequested = False
         newRequest = True
         newBookRecommended = True
 
         srNo = request.POST.get("increaseRequestCount")
-        insertQuery = "insert into bookRequest (srNo, cardnumber) values ('" + srNo + "', 'I2K16102102');"
-        
-        try:
-            cursor.execute(insertQuery)
-        
-        except:         # User has already requested book
-            print("Already Voted")
+        # Insert vote in bookRequest table cardnumber needed
+        insertQuery = "insert into bookRequest (srNo, cardnumber) values ('" + srNo + "', '" + userCardnumber + "');"
+        errorMsg = "Error in inserting bookRequest"            
+
+        insertSuccessful = database.insertOrUpdateOrDelete(insertQuery, errorMsg)
+
+        if not insertSuccessful:
             alreadyRequested = True
             newRequest = False
-            failMsg = "You have already requested for this book"
+            failMsg = "You have already requested for this book"            
+
 
         
-        if not alreadyRequested:   #Update requestCount (Has a scope of trigger)            
-            updateQuery = "update libraryRecommendation set requestCount = requestCount + 1 where srNo = '" + srNo + "';" 
-            try:
-                cursor.execute(updateQuery)
-                print(updateQuery)
-    
-            except mysql.connector.Error as err:
-                print(err)
-                print("Error Code:", err.errno)
-                print("SQLSTATE", err.sqlstate)
-                print("Message", err.msg)
-                return sqlError(err)
+        if not alreadyRequested:   #Update requestCount
+            updateQuery = "update libraryRecommendation set requestCount = requestCount + 1 where bookTitle = '" + newTitle + "' and author = '" + newAuthor + "';" 
+            errorMsg = "Error in updating libraryRecommndation"
+
+            updateSucessful = database.insertOrUpdateOrDelete(updateQuery, errorMsg)
+
+            if not updateSucessful:
+                failMsg = "Error in updating requestCount"
         
         if not failMsg:
-                successMsg = "New Book Recommended"
-        
+            successMsg = "New Book Recommended"
 
     context = {
         'searchBook' : searchBook,
