@@ -1,5 +1,6 @@
 {
     "python.linting.pylintEnabled": true,
     "python.linting.enabled": true,
-    "python.pythonPath": "django/bin/python2"
+    "python.pythonPath": "django/bin/python2",
+    "git.ignoreLimitWarning": true
 }
