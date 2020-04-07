@@ -59,7 +59,7 @@ class user(models.Model):
         managed = False
 
 class transaction(models.Model):
-    transaction_id = models.IntegerField(primary_key = True)
+    transaction_id = models.AutoField(primary_key = True)
     DATE = models.DateField()
     barcode = models.CharField(max_length = 9)
     cardnumber = models.CharField(max_length = 14)

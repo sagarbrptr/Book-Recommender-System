@@ -10,10 +10,10 @@
         <div class="container-fuild">
 
             <div class="card">
-                <div class="card-body border border-secondary mt-2 ml-3 mr-3">
+                <div class="card-body border border-secondary mt-5 ml-3 mr-3">
 
                     <div class="text-center mb-2">
-                        Add Book In Inventory
+                        Issue Book To Student
                     </div>
 
                     <form method="POST">
@@ -28,86 +28,40 @@
                         </div>
 
                         <div class="form-group row">
-                            <label for="newTitle" class="col-sm-2 col-form-label">Title</label>
+                            <label for="newCardNumber" class="col-sm-2 col-form-label">Cardnumber</label>
                             <div class="col-sm-10">
-                                <input required name="newTitle" type="text" class="form-control" id="newTitle"
-                                    placeholder="Digital Fortress">
+                                <input required name="newCardNumber" type="text" class="form-control" id="newCardNumber"
+                                    placeholder="I2K16102102">
                             </div>
-                        </div>
+                        </div>                        
 
                         <div class="form-group row">
-                            <label for="newAuthor" class="col-sm-2 col-form-label">Author</label>
+                            <label for="newBranchCode" class="col-sm-2 col-form-label">Branchcode</label>
                             <div class="col-sm-10">
-                                <input required name="newAuthor" type="text" class="form-control" id="newAuthor"
-                                    placeholder="D.Brown">
-                            </div>
-                        </div>
-
-                        <div class="form-group row">
-                            <label for="newSubject" class="col-sm-2 col-form-label">Subject</label>
-                            <div class="col-sm-10">
-                                <input required name="newSubject" type="text" class="form-control" id="newSubject"
-                                    placeholder="Programming">
-                            </div>
-                        </div>
-
-                        <div class="text-center">
-                            <button class="btn btn-primary" value="newBookSubmit" name="newBookSubmit">Submit</button>
-                        </div>
-
-                    </form>
-                </div>
-            </div>
-
-            {% if insertFormSubmitted and insertSuccessful %}
-            <div class="alert alert-success" role="alert">
-                New Book Added Successfully
-            </div>
-
-            {% elif insertFormSubmitted and not insertSuccessful %}
-            <div class="alert alert-secondary" role="alert">
-                {{insertionErrorMsg}}
-            </div>
-
-            {% endif %}
-
-            <div class="card">
-                <div class="card-body border border-danger mt-5 ml-3 mr-3">
-
-                    <div class="text-center mb-2">
-                        Delete Book From Inventory
-                    </div>
-
-                    <form method="POST">
-                        {% csrf_token %}
-
-                        <div class="form-group row">
-                            <label for="deleteBarcode" class="col-sm-2 col-form-label">Barcode</label>
-                            <div class="col-sm-10">
-                                <input required name="deleteBarcode" type="text" class="form-control" id="deleteBarcode"
-                                    placeholder="1111001">
+                                <input required name="newBranchCode" type="text" class="form-control" id="newBranchCode"
+                                    placeholder="PICT">
                             </div>
                         </div>                        
 
                         <div class="text-center">
-                            <button class="btn btn-danger" value="deleteBookSubmit" name="deleteBookSubmit">Delete</button>
+                            <button class="btn btn-primary" value="newIssueSubmit" name="newIssueSubmit">Submit</button>
                         </div>
 
                     </form>
                 </div>
             </div>
 
-            {% if deleteFormSubmitted and deleteSuccessful %}
-            <div class="alert alert-danger" role="alert">
-                Book Deleted Successfully
+            {% if issueFormSubmitted and issueSuccessful %}
+            <div class="alert alert-success" role="alert">
+                New Book Issued Successfully
             </div>
 
-            {% elif deleteFormSubmitted and not deleteSuccessful %}
+            {% elif issueFormSubmitted and not issueSuccessful %}
             <div class="alert alert-secondary" role="alert">
-                {{deletionErrorMsg}}
+                {{ErrMsg}}
             </div>
 
-            {% endif %}
+            {% endif %}            
 
         </div>
         <!-- /.container-fluid -->

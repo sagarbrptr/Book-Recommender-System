@@ -5,7 +5,7 @@ from django.shortcuts import render, render_to_response
 from django.http import HttpResponse
 # import mysql.connector
 from django.template import RequestContext
-from student.models import *
+# from student.models import *
 
 
 class DB:
@@ -87,11 +87,12 @@ class DB:
 
 
 def studentHome(request):
+    userCardnumber = "123"
     database = DB()
 
-    books_db = "select distinct b.title, b.barcode, t.DATE from books_db as b, transaction as t where b.barcode = t.barcode and t.cardnumber = '123' group by title;"
+    books_db = "select distinct b.title, b.barcode, t.DATE from books_db as b, transaction as t where b.barcode = t.barcode and t.cardnumber = '" + userCardnumber + "' group by title;"
     query = "select distinct b.title, b.barcode, t.DATE " + "from books as b, transaction as t" + \
-        " where b.barcode = t.barcode and t.cardnumber = '123' group by title union all " + books_db
+        " where b.barcode = t.barcode and t.cardnumber = '" + userCardnumber + "' group by title union all " + books_db
     errorMsg = "Error in selecting from books_db or books"
 
     row = database.select(query, errorMsg)
@@ -112,7 +113,7 @@ def studentHome(request):
         temp["DATE"] = str(i[2])
 
         query_get_rating = "select rating,valid from ratings where barcode = (select bt.barcode from bt_map bt where bt.title ='" + \
-            temp["title"] + "' limit 1) and cardnumber = 123;"
+            temp["title"] + "' limit 1) and cardnumber = '" + userCardnumber + "';"
         errorMsg = "Error in selecting rating from ratings"
 
         res = database.select(query_get_rating, errorMsg)
@@ -134,7 +135,6 @@ def increaseRequestCount(database, request, userCardnumber, srNo):
 
     alreadyRequested = False
     newRequest = True
-    newBookRecommended = True
     failMsg = ""
     successMsg = ""
 
@@ -180,7 +180,7 @@ def increaseRequestCount(database, request, userCardnumber, srNo):
 
 def recommendLibrary(request):
 
-    userCardnumber = "I2K16102102"
+    userCardnumber = "123"
 
     libraryResult = []
     title = ""
@@ -273,7 +273,6 @@ def recommendLibrary(request):
         newBookRecommendation = True
         searchBook = False
         checkRecommendedBooks = False
-        newBookRecommendehiddenTitled = False
 
     if request.POST.get('newBookSubmit'):   # New book info is submitted        
 
