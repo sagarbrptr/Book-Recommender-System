@@ -118,8 +118,9 @@ def studentHome(request):
 
         res = database.select(query_get_rating, errorMsg)
 
-        temp["rating"] = res[0][0]
-        temp["valid"] = res[0][1]
+        if res :
+            temp["rating"] = res[0][0]
+            temp["valid"] = res[0][1]        
 
         result.append(temp)
 
@@ -217,29 +218,33 @@ def recommendLibrary(request):
 
         row = database.select(queryBooks, errorMsg)
 
-        for i in row:
+        # If there exists any row, iterate
+        if row:
+            for i in row:
 
-            temp = {}
-            temp["barcode"] = str(i[0])
-            temp["title"] = str(i[1])
+                temp = {}
+                temp["barcode"] = str(i[0])
+                temp["title"] = str(i[1])
 
-            if temp['barcode'].find("DB") > 0:      # barcode contains DB
-                queryAuthor = "select author from books_db where barcode = '" + \
-                    temp['barcode'] + "' ;"
+                if temp['barcode'].find("DB") > 0:      # barcode contains DB
+                    queryAuthor = "select author from books_db where barcode = '" + \
+                        temp['barcode'] + "' ;"
 
-            else:
-                queryAuthor = "select author from books where barcode = '" + \
-                    temp['barcode'] + "' ;"
-            errorMsg = "Error in selecting author from books_db or books"
+                else:
+                    queryAuthor = "select author from books where barcode = '" + \
+                        temp['barcode'] + "' ;"
+                errorMsg = "Error in selecting author from books_db or books"
 
-            author = database.select(queryAuthor, errorMsg)
-            if not len(author):
-                temp['author'] = "Not Available"
+                author = database.select(queryAuthor, errorMsg)
+                if not author:
+                    temp['author'] = "Not Available"
 
-            else:
-                temp['author'] = str(author[0][0])
+                else:
+                    temp['author'] = str(author[0][0])
 
-            libraryResult.append(temp)
+                libraryResult.append(temp)
+
+
 
     if request.POST.get('checkRecommendedBooks'):   # Check already Recommended books
         searchBook = False
@@ -256,15 +261,17 @@ def recommendLibrary(request):
 
         row = database.select(query, errorMsg)
 
-        for i in row:
+        # If any row, iterate
+        if row:
+            for i in row:
 
-            temp = {}
-            temp["srNo"] = str(i[0])
-            temp["title"] = str(i[1])
-            temp["author"] = str(i[2])
-            temp["requestCount"] = str(i[3])
+                temp = {}
+                temp["srNo"] = str(i[0])
+                temp["title"] = str(i[1])
+                temp["author"] = str(i[2])
+                temp["requestCount"] = str(i[3])
 
-            alreadyRecommendedResult.append(temp)
+                alreadyRecommendedResult.append(temp)
 
     if request.POST.get('newBookRecommendation'):   # Recommend new book
 
@@ -296,62 +303,66 @@ def recommendLibrary(request):
 
         row = database.select(query, errorMsg)
         
-        if not len(row):    # does not exists,  new Book is recommended
-            newRequest = True
+        if row:
+            if not len(row):    # does not exists,  new Book is recommended
+                newRequest = True
 
-            #insert in libraryRecommendation
-            insertQuery = "insert into libraryRecommendation values(default, '" + \
-                newTitle + "', '" + newAuthor + "', '" + newCategory + "', 1);"
-            errorMsg = "Error in inserting in libraryRecommendation"
+                #insert in libraryRecommendation
+                insertQuery = "insert into libraryRecommendation values(default, '" + \
+                    newTitle + "', '" + newAuthor + "', '" + newCategory + "', 1);"
+                errorMsg = "Error in inserting in libraryRecommendation"
 
-            # If insert in libraryRecommendation sucessful,
-            # select latest srNo of book inserted
-            if database.insertOrUpdateOrDelete(insertQuery, errorMsg):
+                # If insert in libraryRecommendation sucessful,
+                # select latest srNo of book inserted
+                if database.insertOrUpdateOrDelete(insertQuery, errorMsg):
 
-                getSrNo = "select max(srNo) from libraryRecommendation ;"
-                errorMsg = "Error in selecting max srNo from libraryRecommendation"
+                    getSrNo = "select max(srNo) from libraryRecommendation ;"
+                    errorMsg = "Error in selecting max srNo from libraryRecommendation"
 
-                latestSrNo = database.select(getSrNo, errorMsg)                
+                    latestSrNo = database.select(getSrNo, errorMsg)                
 
-                # If valid srNo found, insert in bookRequest
-                if latestSrNo:
-                    srNo = str(latestSrNo[0][0])
-                    insertQuery = "insert into bookRequest (srNo, cardnumber) values ('" + \
-                        srNo + "', '" + userCardnumber + "');"
-                    errorMsg = "Error in inserting bookRequest"
+                    # If valid srNo found, insert in bookRequest
+                    if latestSrNo:
+                        srNo = str(latestSrNo[0][0])
+                        insertQuery = "insert into bookRequest (srNo, cardnumber) values ('" + \
+                            srNo + "', '" + userCardnumber + "');"
+                        errorMsg = "Error in inserting bookRequest"
 
-                    insertSuccessful = database.insertOrUpdateOrDelete(
-                        insertQuery, errorMsg)
+                        insertSuccessful = database.insertOrUpdateOrDelete(
+                            insertQuery, errorMsg)
 
-                    # If insertion failed, rollback
-                    if not insertSuccessful:
-                        alreadyRequested = True
-                        newRequest = False
-                        failMsg = "Error in insertion in bookRequest"
+                        # If insertion failed, rollback
+                        if not insertSuccessful:
+                            alreadyRequested = True
+                            newRequest = False
+                            failMsg = "Error in insertion in bookRequest"
+                            database.rollback()
+
+                        # Else insertion was successful, commit
+                        if not failMsg:
+                            successMsg = "New Book Recommended Successfully"
+                            database.commit()
+
+                    # Else error in srNo, rollback
+                    else:
+                        print("Error in selecting srNo from libraryRecommendation")
+                        failMsg = "Error in selecting srNo from libraryRecommendation"
                         database.rollback()
 
-                    # Else insertion was successful, commit
-                    if not failMsg:
-                        successMsg = "New Book Recommended Successfully"
-                        database.commit()
-
-                # Else error in srNo, rollback
+                # Else error in insertion in libraryRecommendation
                 else:
-                    print("Error in selecting srNo from libraryRecommendation")
-                    failMsg = "Error in selecting srNo from libraryRecommendation"
+                    print("Error in insertion in libraryRecommendation")
+                    failMsg = "Error in inserting libraryRecommendation"
                     database.rollback()
 
-            # Else error in insertion in libraryRecommendation
+            # Else book already exists, increase count
             else:
-                print("Error in insertion in libraryRecommendation")
-                failMsg = "Error in inserting libraryRecommendation"
-                database.rollback()
-
-        # Else book already exists, increase count
+                srNo = str(row[0][0])
+                alreadyRequested,  newRequest, failMsg, successMsg = increaseRequestCount(
+                    database, request, userCardnumber, srNo)
+        
         else:
-            srNo = str(row[0][0])
-            alreadyRequested,  newRequest, failMsg, successMsg = increaseRequestCount(
-                database, request, userCardnumber, srNo)
+            failMsg = "Error in title. Check if you have not inserted any quotes!! (-_-)"
     
     if request.POST.get("increaseRequestCount"):
         newBookRecommended = True

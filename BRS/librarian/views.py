@@ -4,6 +4,7 @@ from django.db import connection, transaction
 from django.shortcuts import render, render_to_response
 from django.http import HttpResponse
 from django.template import RequestContext
+import random
 
 
 class DB:
@@ -84,7 +85,7 @@ class DB:
         return True
 
 
-def insertBook(request, database):    
+def insertBook(request, database):
 
     # Start transaction
     database.beginTransaction()
@@ -129,7 +130,7 @@ def insertBook(request, database):
                 return True
 
             # Else, error in insertion of bt_map, rollback
-            else:                
+            else:
                 database.rollback()
                 return False
 
@@ -150,11 +151,10 @@ def librarianHome(request):
 
     if request.POST.get("newBookSubmit"):       # Insert books
         database = DB()
-        insertFormSubmitted = True        
+        insertFormSubmitted = True
 
         # Insert in books
         insertSuccessful = insertBook(request, database)
-
 
     if request.POST.get("deleteBookSubmit"):        # Delete Books
         database = DB()
@@ -234,16 +234,17 @@ def librarianRecommendation(request):
 
     row = database.select(selectQuery, errorMsg)
     # Handle null row exception directly in html using len
-    for i in row:
-        temp = {}
-        # had to use str() because when passing object to
-        temp["srNo"] = str(i[0])
-        temp["title"] = str(i[1])  # insertRequestedBook, indexes get u''.
-        temp["author"] = str(i[2])
-        temp["subject"] = str(i[3])
-        temp["requestCount"] = str(i[4])
-        # print(temp["requestCount"])
-        recommendedBook.append(temp)
+    if row:
+        for i in row:
+            temp = {}
+            # had to use str() because when passing object to
+            temp["srNo"] = str(i[0])
+            temp["title"] = str(i[1])  # insertRequestedBook, indexes get u''.
+            temp["author"] = str(i[2])
+            temp["subject"] = str(i[3])
+            temp["requestCount"] = str(i[4])
+            # print(temp["requestCount"])
+            recommendedBook.append(temp)
 
     if request.POST.get("addRequestedBook"):    # Add a recommended book to library
         addRequestedBookFormSubmitted = True
@@ -303,18 +304,97 @@ def issueBook(request):
     if request.POST.get("newIssueSubmit"):
         issueFormSubmitted = True
 
-        newBarocde = request.POST.get("newBarocde")
+        newBarocde = str(request.POST.get("newBarocde"))
         newCardNumber = request.POST.get("newCardNumber")
         newBranchCode = request.POST.get("newBranchCode")
 
-        insertQuery = "insert into transaction VALUES (default, CURDATE(), '" + newBarocde + "', '" + newCardNumber + \
-            "', (select name from user where barcode_no = '" + \
-            newCardNumber + "'), '" + newBranchCode + "');"
-        errMsg = "Error in inserting in transaction"
-        print(insertQuery)
+        # Start Transaction
+        database.beginTransaction()
 
-        if database.insertOrUpdateOrDelete(insertQuery, errMsg):
-            issueSuccessful = True
+        selectUser = "select barcode_no, Name from user where barcode_no = '" + \
+            newCardNumber + "';"
+        errorMsg = "Error in seelcting from user"
+
+        # If a valid user, check barcode
+        if database.select(selectUser, errorMsg):
+            # Get table
+            if newBarocde.find("DB") > 0:
+                table = "books_db"
+            else:
+                table = "books"
+
+            selectBarcode = "select title from " + table + " where barcode = '" + \
+                newBarocde + "';"
+            errorMsg = "Error in selecting from books"
+            
+            validTitle = database.select(selectBarcode, errorMsg)
+            # If a valid barcode, insert in transaction
+            if validTitle : 
+                title = validTitle[0][0] # Needed in getting barcode from bt_map
+                insertTransactionQuery = "insert into transaction VALUES (default, CURDATE(), '" + newBarocde + "', '" + newCardNumber + \
+                    "', (select name from user where barcode_no = '" + \
+                    newCardNumber + "'), '" + newBranchCode + "');"
+                errMsg = "Error in inserting in transaction"
+                # print(insertTransactionQuery)
+
+                # If insert in transaction successful, 
+                # insert in ratings through ratings
+                if database.insertOrUpdateOrDelete(insertTransactionQuery, errMsg):                    
+                    # Get Barcode from bt_map
+                    selectBarcodeBt_map = "select barcode from bt_map where title = '" + title + "';"
+                    errorMsg = "Error in selecting barcode from bt_map"
+
+                    validBarcode = database.select(selectBarcodeBt_map, errorMsg)
+
+                    # If valid barcode, 
+                    # check if same barcode and same user already exists in ratings                                        
+                    
+                    if validBarcode:
+                        barcode = validBarcode[0][0]
+
+                        selectRating = "select * from ratings where barcode = '" + barcode + "' and cardnumber = '" + newCardNumber + "';"
+                        errorMsg = "Error in selecting from ratings"
+
+                        # If no entry in ratings 
+                        # insert in ratings
+                        if not database.select(selectRating, errorMsg):                      
+                            insertRatingsQuery = "insert into ratings values ('" + newCardNumber + "', '" + barcode + "', '" + str(random.randrange(1, 6)) + "', '0');"
+                            errorMsg = "Error in inserting in ratings"
+
+                            #If insert successful, commit
+                            if database.insertOrUpdateOrDelete(insertRatingsQuery, errorMsg):
+                                issueSuccessful = True
+                                database.commit()
+                            
+                            # Else, error in inserting in ratings, commit
+                            else:
+                                ErrMsg = "Error in inserting in ratings"
+                                database.rollback()
+                        
+                        # Else, a rating already exists for given set, commit
+                        else:
+                            issueSuccessful = True
+                            database.commit()
+
+                    # Else, error in getting barcode from bt_map, rollback
+                    else:
+                        ErrMsg = "Error in getting barcode from bt_map"
+                        database.rollback()
+
+                # Else, error in inserting in transaction, rollback                                            
+                else:
+                    ErrMsg = "Error in inserting in transaction table"
+                    database.rollback()
+
+            # Else, invalid barcode, rollback
+            else:
+                ErrMsg = "Invalid barcode"
+                database.rollback()
+
+        # Else, invalid user, rollback
+        else:
+            ErrMsg = "Invalid user"
+            database.rollback()
 
     context = {
         'issueFormSubmitted': issueFormSubmitted,
