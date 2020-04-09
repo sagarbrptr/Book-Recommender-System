@@ -11,7 +11,7 @@ urlpatterns = [
     url(r'^login/$', studentView.loginview, name = "login"),
      url(r'^logout/$', studentView.logoutview, name = "logout"),
 
-    url(r'^$', studentView.studentHome, name = "studentHome"),
+    url(r'^studentHome$', studentView.studentHome, name = "studentHome"),
     url(r'^recommendLibrary$', studentView.recommendLibrary, name = "recommendLibrary"),
     url(r'^studentRecommendation$', studentView.studentRecommendation, name = "studentRecommendation"),
 

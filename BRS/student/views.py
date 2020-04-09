@@ -104,16 +104,18 @@ def loginview(request):
         username = request.POST.get('username')
         password = request.POST.get('pass')
 
-        print(username)
-        print(password)
-
-        result=validate_user(username,password)
-        user = authenticate(request, username=username, password=password)
-        if(result==1):
-            #login(request,username,backend=None)
+        """print(username)
+        print(password)"""
+        if(username == 'admin' and password =='bablu'):
+            print ("library")
             return redirect("/librarianHome")
-        else: 
-            return redirect("/login")
+        else:
+            result=validate_user(username,password)
+            if(result==1):
+                #login(request,username,backend=None)
+                return redirect("/studentHome")
+            else: 
+                return redirect("/login")
         
     context={}
     return render(request,"student/home.html",context)
