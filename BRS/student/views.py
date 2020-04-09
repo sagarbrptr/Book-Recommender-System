@@ -1,11 +1,13 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
 from django.db import connection, transaction
-from django.shortcuts import render, render_to_response
+from django.shortcuts import render, render_to_response,redirect
 from django.http import HttpResponse
 # import mysql.connector
 from django.template import RequestContext
 from student.models import *
+from django.contrib.auth import authenticate, login, logout 
+from django.contrib.auth.decorators import login_required
 
 
 class DB:
@@ -84,6 +86,44 @@ class DB:
             return False
 
         return True
+
+def validate_user(username,password):
+    database = DB()
+    query ="select * from user where cardnumber = '"+username+"' and password = '"+password+"';"
+    print(query)
+    err ="invalid credentials"
+
+    row = database.select(query, err)
+    if(len(row)==0):
+        return 0
+    else:
+        return 1
+
+def loginview(request):
+    if request.method == "POST":
+        username = request.POST.get('username')
+        password = request.POST.get('pass')
+
+        print(username)
+        print(password)
+
+        result=validate_user(username,password)
+        user = authenticate(request, username=username, password=password)
+        if(result==1):
+            #login(request,username,backend=None)
+            return redirect("/librarianHome")
+        else: 
+            return redirect("/login")
+        
+    context={}
+    return render(request,"student/home.html",context)
+
+def logoutview(request):
+    #if request.method == "POST":
+    logout(request)
+    return HttpResponse("logged out succesfully!")
+
+
 
 
 def studentHome(request):
@@ -385,7 +425,7 @@ def recommendLibrary(request):
     }
     return render(request, 'student/recommend-library.html', context)
 
-
+@login_required(login_url="/login")
 def studentRecommendation(request):
 
     result = []
