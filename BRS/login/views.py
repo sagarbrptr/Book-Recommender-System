@@ -30,6 +30,7 @@ def validate_user(username, password):
 
 def loginview(request):
     loginFailed = False
+    user = ""
 
     if request.method == "POST":
         # if request.POST.get("login")
@@ -76,3 +77,6 @@ def logoutview(request):
     # if request.method == "POST":
     logout(request)
     return redirect("/login")
+
+def notStaff(request):
+    return HttpResponse("Not authorized")
