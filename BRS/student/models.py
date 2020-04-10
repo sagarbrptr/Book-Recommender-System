@@ -14,26 +14,16 @@ class ratings(models.Model):
         managed = False
         unique_together = (('cardnumber', 'barcode'),)
 
+
 class books(models.Model):
-    barcode = models.CharField(max_length = 8, primary_key = True)
+    barcode = models.CharField(max_length = 10, primary_key = True)
     dateaccessioned = models.DateField()
-    title = models.CharField(max_length = 105)
-    author = models.CharField(max_length = 43)
+    title = models.CharField(max_length = 100)
+    author = models.CharField(max_length = 45)
     Subject = models.CharField(max_length = 35)
 
     class Meta:
         db_table = 'books'
-        managed = False
-
-class books_db(models.Model):
-    barcode = models.CharField(max_length = 9, primary_key = True)
-    dateaccessioned = models.DateField()
-    title = models.CharField(max_length = 100)
-    author = models.CharField(max_length = 37)
-    Subject = models.CharField(max_length = 15)
-
-    class Meta:
-        db_table = 'books_db'
         managed = False
 
 class bt_map(models.Model):
@@ -47,7 +37,7 @@ class bt_map(models.Model):
 
 class user(models.Model):
     SrNo = models.IntegerField()
-    barcode_no = models.CharField(max_length = 11, primary_key = True)
+    cardnumber = models.CharField(max_length = 14, primary_key = True)
     Roll_No = models.IntegerField()
     Name = models.CharField(max_length = 35)
     Gender = models.CharField(max_length = 6)
@@ -61,8 +51,8 @@ class user(models.Model):
 class transaction(models.Model):
     transaction_id = models.AutoField(primary_key = True)
     DATE = models.DateField()
-    barcode = models.CharField(max_length = 9)
-    cardnumber = models.CharField(max_length = 14)
+    barcode = models.ForeignKey(books,on_delete=models.CASCADE)
+    cardnumber = models.ForeignKey(user,on_delete=models.CASCADE)
     Name = models.CharField(max_length = 39)
     branchcode = models.CharField(max_length = 4)
 

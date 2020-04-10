@@ -1,0 +1,21 @@
+{
+    "python.linting.pylintEnabled": true,
+    "python.linting.enabled": true,
+<<<<<<< HEAD
+    "python.pythonPath": "django/bin/python2",
+    "git.ignoreLimitWarning": true,
+    "sqltools.connections": [
+        {
+            "database": "brs_db",
+            "dialect": "MySQL",
+            "name": "BRS-DB",
+            "password": "GroupNo13",
+            "port": 3306,
+            "server": "brs-db.cmh6bzxvnr8x.us-east-1.rds.amazonaws.com",
+            "username": "admin"
+        }
+    ]
+=======
+    "python.pythonPath": "/usr/bin/python2.7"
+>>>>>>> 9210435f973fec1cb23052e1c8aee9b23ea4955a
+}

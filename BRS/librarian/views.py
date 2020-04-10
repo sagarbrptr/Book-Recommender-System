@@ -5,7 +5,7 @@ from django.shortcuts import render, render_to_response
 from django.http import HttpResponse
 from django.template import RequestContext
 import random
-
+from django.contrib.auth.decorators import login_required
 
 class DB:
 
@@ -139,7 +139,7 @@ def insertBook(request, database):
         database.rollback()
         return False
 
-
+# @login_required(login_url="/login")
 def librarianHome(request):
 
     insertSuccessful = False
@@ -219,7 +219,7 @@ def librarianHome(request):
 
     return render(request, 'librarian/librarian-home.html', context)
 
-
+# @login_required(login_url="/login")
 def librarianRecommendation(request):
     recommendedBook = []
     insertSuccessful = False
@@ -290,11 +290,11 @@ def librarianRecommendation(request):
 
     return render(request, 'librarian/librarian-recommendation.html', context)
 
-
+# @login_required(login_url="/login")
 def librarianStatistics(request):
     return render(request, 'librarian/librarian-statistics.html')
 
-
+# @login_required(login_url="/login")
 def issueBook(request):
     database = DB()
     issueFormSubmitted = False

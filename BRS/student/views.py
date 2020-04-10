@@ -1,11 +1,15 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
 from django.db import connection, transaction
-from django.shortcuts import render, render_to_response
+from django.shortcuts import render, render_to_response,redirect
 from django.http import HttpResponse
 # import mysql.connector
 from django.template import RequestContext
+
 # from student.models import *
+from django.contrib.auth import authenticate, login, logout 
+from django.contrib.auth.decorators import login_required
+from django.contrib.auth.models import User
 
 
 class DB:
@@ -85,7 +89,7 @@ class DB:
 
         return True
 
-
+@login_required(login_url="/login")
 def studentHome(request):
     userCardnumber = "123"
     database = DB()
@@ -130,7 +134,6 @@ def studentHome(request):
     }
 
     return render(request, 'student/issue-history.html', context)
-
 
 def increaseRequestCount(database, request, userCardnumber, srNo):
 
@@ -178,7 +181,7 @@ def increaseRequestCount(database, request, userCardnumber, srNo):
     
     return alreadyRequested, newRequest, failMsg, successMsg
 
-
+@login_required(login_url="/login")
 def recommendLibrary(request):
 
     userCardnumber = "123"
@@ -395,7 +398,7 @@ def recommendLibrary(request):
     }
     return render(request, 'student/recommend-library.html', context)
 
-
+@login_required(login_url="/login")
 def studentRecommendation(request):
 
     result = []

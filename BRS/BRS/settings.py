@@ -38,7 +38,8 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'student.apps.StudentConfig',
-    'librarian.apps.LibrarianConfig'
+    'librarian.apps.LibrarianConfig',
+    'login.apps.LoginConfig'
 ]
 
 MIDDLEWARE = [

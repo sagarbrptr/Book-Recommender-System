@@ -5,15 +5,17 @@ from django.contrib.staticfiles.urls import staticfiles_urlpatterns
 
 from student import views as studentView
 from librarian import views as librarianView
+from login import views as loginView
 
 urlpatterns = [
     url(r'^admin/', admin.site.urls),
+    url(r'^$', loginView.loginview, name = "login"),
+    url(r'^login/$', loginView.loginview, name = "login"),
+     url(r'^logout/$', loginView.logoutview, name = "logout"),
 
-    # Student
-    url(r'^$', studentView.studentHome, name="studentHome"),
-    url(r'^recommendLibrary$', studentView.recommendLibrary, name="recommendLibrary"),
-    url(r'^studentRecommendation$', studentView.studentRecommendation,
-        name="studentRecommendation"),
+    url(r'^studentHome$', studentView.studentHome, name = "studentHome"),
+    url(r'^recommendLibrary$', studentView.recommendLibrary, name = "recommendLibrary"),
+    url(r'^studentRecommendation$', studentView.studentRecommendation, name = "studentRecommendation"),
 
     # Librarian
     url(r'^librarianHome$', librarianView.librarianHome, name="librarianHome"),
