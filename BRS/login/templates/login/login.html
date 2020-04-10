@@ -57,10 +57,10 @@
 											Sign in
 										</button>
 									</form>
-
-									{% if failed %}
-									<div class="alert alert-danger" role="alert">
-										{{failMsg}}
+																		
+									{% if loginFailed %}
+									<div class="alert alert-danger mt-2" role="alert">
+										Invalid Username or Password
 									</div>
 
 									{% endif %}

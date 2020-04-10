@@ -1,3 +1,5 @@
 *.pyc
 *.origi
 /BRS/django/*
+*.json.origi
+*.py.origi

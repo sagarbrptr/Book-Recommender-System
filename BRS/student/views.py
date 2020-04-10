@@ -91,13 +91,18 @@ class DB:
 
 @login_required(login_url="/login")
 def studentHome(request):
-    userCardnumber = "123"
+
+    userCardnumber = ""
+    if request.user.is_authenticated():
+        userCardnumber = request.user.username
+
     database = DB()
 
     books_db = "select distinct b.title, b.barcode, t.DATE from books_db as b, transaction as t where b.barcode = t.barcode and t.cardnumber = '" + userCardnumber + "' group by title;"
     query = "select distinct b.title, b.barcode, t.DATE " + "from books as b, transaction as t" + \
         " where b.barcode = t.barcode and t.cardnumber = '" + userCardnumber + "' group by title union all " + books_db
     errorMsg = "Error in selecting from books_db or books"
+    # print(query)
 
     row = database.select(query, errorMsg)
 
@@ -184,7 +189,9 @@ def increaseRequestCount(database, request, userCardnumber, srNo):
 @login_required(login_url="/login")
 def recommendLibrary(request):
 
-    userCardnumber = "123"
+    userCardnumber = ""
+    if request.user.is_authenticated():
+        userCardnumber = request.user.username
 
     libraryResult = []
     title = ""
