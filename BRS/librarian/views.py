@@ -95,14 +95,10 @@ def insertBook(request, database):
     newAuthor = request.POST.get("newAuthor")
     newSubject = request.POST.get("newSubject")
 
-    if newBarocde.find("DB") > 0:  # barcode contains DB
-        table = "books_db"
-
-    else:
-        table = "books"
-
-    submitQuery = "Insert into " + table + " values('" + newBarocde + "', curdate(), '" + \
+    submitQuery = "Insert into books values('" + newBarocde + "', curdate(), '" + \
         newTitle + "', '" + newAuthor + "', '" + newSubject + "');"
+    print(submitQuery)
+
     errorMsg = "Error in inserting in books"
     # print(submitQuery)
 
@@ -165,11 +161,7 @@ def librarianHome(request):
         # Start Transaction
         database.beginTransaction()
 
-        if deleteBarcode.find("DB") > 0:  # barcode contains DB
-            table = "books_db"
-
-        else:
-            table = "books"
+        table = "books"
 
         selectQuery = "select * from " + table + \
             " where barcode = '" + deleteBarcode + "';"
@@ -311,17 +303,13 @@ def issueBook(request):
         # Start Transaction
         database.beginTransaction()
 
-        selectUser = "select barcode_no, Name from user where barcode_no = '" + \
+        selectUser = "select cardnumber, Name from user where cardnumber = '" + \
             newCardNumber + "';"
-        errorMsg = "Error in seelcting from user"
+        errorMsg = "Error in selcting from user"        
 
         # If a valid user, check barcode
-        if database.select(selectUser, errorMsg):
-            # Get table
-            if newBarocde.find("DB") > 0:
-                table = "books_db"
-            else:
-                table = "books"
+        if database.select(selectUser, errorMsg):           
+            table = "books"
 
             selectBarcode = "select title from " + table + " where barcode = '" + \
                 newBarocde + "';"
@@ -332,7 +320,7 @@ def issueBook(request):
             if validTitle : 
                 title = validTitle[0][0] # Needed in getting barcode from bt_map
                 insertTransactionQuery = "insert into transaction VALUES (default, CURDATE(), '" + newBarocde + "', '" + newCardNumber + \
-                    "', (select name from user where barcode_no = '" + \
+                    "', (select name from user where cardnumber = '" + \
                     newCardNumber + "'), '" + newBranchCode + "');"
                 errMsg = "Error in inserting in transaction"
                 # print(insertTransactionQuery)

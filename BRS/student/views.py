@@ -97,11 +97,10 @@ def studentHome(request):
         userCardnumber = request.user.username
 
     database = DB()
-
-    books_db = "select distinct b.title, b.barcode, t.DATE from books_db as b, transaction as t where b.barcode = t.barcode and t.cardnumber = '" + userCardnumber + "' group by title;"
+    
     query = "select distinct b.title, b.barcode, t.DATE " + "from books as b, transaction as t" + \
-        " where b.barcode = t.barcode and t.cardnumber = '" + userCardnumber + "' group by title union all " + books_db
-    errorMsg = "Error in selecting from books_db or books"
+        " where b.barcode = t.barcode and t.cardnumber = '" + userCardnumber + "' group by title; "
+    errorMsg = "Error in selecting from books"
     # print(query)
 
     row = database.select(query, errorMsg)
@@ -235,13 +234,8 @@ def recommendLibrary(request):
                 temp = {}
                 temp["barcode"] = str(i[0])
                 temp["title"] = str(i[1])
-
-                if temp['barcode'].find("DB") > 0:      # barcode contains DB
-                    queryAuthor = "select author from books_db where barcode = '" + \
-                        temp['barcode'] + "' ;"
-
-                else:
-                    queryAuthor = "select author from books where barcode = '" + \
+             
+                queryAuthor = "select author from books where barcode = '" + \
                         temp['barcode'] + "' ;"
                 errorMsg = "Error in selecting author from books_db or books"
 
