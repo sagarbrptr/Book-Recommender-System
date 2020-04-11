@@ -40,7 +40,7 @@
 
       <li class="nav-item">
         <a class="nav-link {% if request.path == '/recommendLibrary' %} active {% endif %}" href="/recommendLibrary">Recommend Library</a>
-      </li>
+      </li>      
 
     </ul>
 
@@ -76,27 +76,80 @@
 
       <!-- Nav Item - User Information -->
       <li class="nav-item dropdown no-arrow">
-        <a class="nav-link dropdown-toggle" href="#" id="userDropdown" role="button" data-toggle="dropdown"
+        <a class="nav-link dropdown-toggle" id="userDropdown" role="button" data-toggle="dropdown"
           aria-haspopup="true" aria-expanded="false">
-          <span class="mr-2 d-none d-lg-inline text-gray-600 small">Valerie Luna</span>
-          <img class="img-profile rounded-circle" src="https://source.unsplash.com/QAB-WJcbgJk/60x60">
+          <span class="mr-2 d-none d-lg-inline text-gray-600 small">{{userName}}</span>
+          <i class="fa fa-user" aria-hidden="true"></i>
         </a>
         <!-- Dropdown - User Information -->
         <div class="dropdown-menu dropdown-menu-right shadow animated--grow-in" aria-labelledby="userDropdown">
-          <a class="dropdown-item" href="#">
-            <i class="fas fa-user fa-sm fa-fw mr-2 text-gray-400"></i>
-            Profile
+          <a class="dropdown-item">
+            <span class="float-left">Reg No : </span>
+            <span title="{{userCardnumber}}" class="float-right ">
+
+              {% if userCardnumber|length < 8 %}
+                {{ userCardnumber }}
+              {% else %}
+                {{ userCardnumber|truncatechars:8 }}
+              {% endif %}
+
+            </span>
           </a>
-          <a class="dropdown-item" href="#">
-            <i class="fas fa-cogs fa-sm fa-fw mr-2 text-gray-400"></i>
-            Settings
+
+          {% if userRollNo %}
+          <a class="dropdown-item">
+            <span class="float-left">Roll No : </span>
+            <span title="{{userRollNo}}" class="float-right ">
+              {% if userRollNo|length < 10 %}
+                {{ userRollNo }}
+              {% else %}
+                {{ userRollNo|truncatechars:10 }}
+              {% endif %}
+            </span>
           </a>
-          <a class="dropdown-item" href="#">
-            <i class="fas fa-list fa-sm fa-fw mr-2 text-gray-400"></i>
-            Activity Log
+          {% endif %}
+
+          {% if userGender %}
+          <a class="dropdown-item">
+            <span class="float-left">Gender : </span>
+            <span title="{{userGender}}" class="float-right ">
+              {% if userGender|length < 10 %}
+                {{ userGender }}
+              {% else %}
+                {{ userGender|truncatechars:10 }}
+              {% endif %}
+            </span>
           </a>
+          {% endif %}
+
+          {% if userClass %}
+          <a class="dropdown-item">
+            <span class="float-left">Class : </span>
+            <span title="{{userClass}}" class="float-right ">
+              {% if userClass|length < 10 %}
+                {{ userClass }}
+              {% else %}
+                {{ userClass|truncatechars:10 }}
+              {% endif %}
+            </span>
+          </a>
+          {% endif %}
+
+          {% if userEmail %}
+          <a class="dropdown-item">
+            <span class="float-left">Email : </span>
+            <span title="{{userEmail}}" class="float-right ">
+              {% if userEmail|length < 10 %}
+                {{ userEmail }}
+              {% else %}
+                {{ userEmail|truncatechars:10 }}
+              {% endif %}
+            </span>
+          </a>
+          {% endif %}
+
           <div class="dropdown-divider"></div>
-          <a class="dropdown-item" href="#" data-toggle="modal" data-target="#logoutModal">
+          <a class="dropdown-item text-center" href="/logout" data-toggle="modal" data-target="#logoutModal">
             <i class="fas fa-sign-out-alt fa-sm fa-fw mr-2 text-gray-400"></i>
             Logout
           </a>
