@@ -42,7 +42,7 @@
       <hr class="sidebar-divider my-0">
 
 
-      <!-- Nav Item - Pages Collapse Menu -->      
+      <!-- Nav Item - Pages Collapse Menu -->
       <li class="nav-item {% if request.path == '/librarianHome' %} active {% endif %}">
         <a class="nav-link {% if request.path == '/librarianHome' %} sidebar-active {% endif %}" href="/librarianHome">
           <i class="fas fa-cog"></i>
@@ -51,13 +51,16 @@
       </li>
 
       <li class="nav-item {% if request.path == '/librarianRecommendation' %} active {% endif %}">
-        <a class="nav-link {% if request.path == '/librarianRecommendation' %} sidebar-active {% endif %}" {% if request.path == '/librarianRecommendation' %} id="sidebar-active" {% endif %} href="/librarianRecommendation">
+        <a class="nav-link {% if request.path == '/librarianRecommendation' %} sidebar-active {% endif %}"
+          {% if request.path == '/librarianRecommendation' %} id="sidebar-active" {% endif %}
+          href="/librarianRecommendation">
           <i class="fas fa-fw fa-chart-area"></i>
           <span>Recommendations</span></a>
       </li>
 
       <li class="nav-item {% if request.path == '/librarianStatistics' %} active {% endif %}">
-        <a class="nav-link {% if request.path == '/librarianStatistics' %} sidebar-active {% endif %}" href="/librarianStatistics">
+        <a class="nav-link {% if request.path == '/librarianStatistics' %} sidebar-active {% endif %}"
+          href="/librarianStatistics">
           <i class="fas fa-chart-bar"></i>
           <span>Statistics</span></a>
       </li>
@@ -92,6 +95,31 @@
 
 
     {% endblock %}
+
+    <!-- Scroll to Top Button-->
+    <a class="scroll-to-top rounded" href="#page-top">
+      <i class="fas fa-angle-up"></i>
+    </a>
+
+    <!-- Logout Modal-->
+    <div class="modal fade" id="logoutModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
+      aria-hidden="true">
+      <div class="modal-dialog" role="document">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="exampleModalLabel">Ready to Leave?</h5>
+            <button class="close" type="button" data-dismiss="modal" aria-label="Close">
+              <span aria-hidden="true">×</span>
+            </button>
+          </div>
+          <div class="modal-body">Select "Logout" below if you are ready to end your current session.</div>
+          <div class="modal-footer">
+            <button class="btn btn-secondary" type="button" data-dismiss="modal">Cancel</button>
+            <a class="btn btn-primary" href="/logout">Logout</a>
+          </div>
+        </div>
+      </div>
+    </div>
     <!-- Bootstrap core JavaScript-->
     <script src="{%static '/vendor/jquery/jquery.min.js' %}"></script>
     <script src="{%static '/vendor/bootstrap/js/bootstrap.bundle.min.js' %}"></script>

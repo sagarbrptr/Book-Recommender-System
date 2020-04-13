@@ -35,12 +35,14 @@
       </li>
 
       <li class="nav-item">
-        <a class="nav-link {% if request.path == '/studentRecommendation' %} active {% endif %}" href="/studentRecommendation">Recommended Books</a>
+        <a class="nav-link {% if request.path == '/studentRecommendation' %} active {% endif %}"
+          href="/studentRecommendation">Recommended Books</a>
       </li>
 
       <li class="nav-item">
-        <a class="nav-link {% if request.path == '/recommendLibrary' %} active {% endif %}" href="/recommendLibrary">Recommend Library</a>
-      </li>      
+        <a class="nav-link {% if request.path == '/recommendLibrary' %} active {% endif %}"
+          href="/recommendLibrary">Recommend Library</a>
+      </li>
 
     </ul>
 
@@ -76,8 +78,8 @@
 
       <!-- Nav Item - User Information -->
       <li class="nav-item dropdown no-arrow">
-        <a class="nav-link dropdown-toggle" id="userDropdown" role="button" data-toggle="dropdown"
-          aria-haspopup="true" aria-expanded="false">
+        <a class="nav-link dropdown-toggle" id="userDropdown" role="button" data-toggle="dropdown" aria-haspopup="true"
+          aria-expanded="false">
           <span class="mr-2 d-none d-lg-inline text-gray-600 small">{{userName}}</span>
           <i class="fa fa-user" aria-hidden="true"></i>
         </a>
@@ -88,9 +90,9 @@
             <span title="{{userCardnumber}}" class="float-right ">
 
               {% if userCardnumber|length < 8 %}
-                {{ userCardnumber }}
+              {{ userCardnumber }}
               {% else %}
-                {{ userCardnumber|truncatechars:8 }}
+              {{ userCardnumber|truncatechars:8 }}
               {% endif %}
 
             </span>
@@ -101,9 +103,9 @@
             <span class="float-left">Roll No : </span>
             <span title="{{userRollNo}}" class="float-right ">
               {% if userRollNo|length < 10 %}
-                {{ userRollNo }}
+              {{ userRollNo }}
               {% else %}
-                {{ userRollNo|truncatechars:10 }}
+              {{ userRollNo|truncatechars:10 }}
               {% endif %}
             </span>
           </a>
@@ -114,9 +116,9 @@
             <span class="float-left">Gender : </span>
             <span title="{{userGender}}" class="float-right ">
               {% if userGender|length < 10 %}
-                {{ userGender }}
+              {{ userGender }}
               {% else %}
-                {{ userGender|truncatechars:10 }}
+              {{ userGender|truncatechars:10 }}
               {% endif %}
             </span>
           </a>
@@ -127,9 +129,9 @@
             <span class="float-left">Class : </span>
             <span title="{{userClass}}" class="float-right ">
               {% if userClass|length < 10 %}
-                {{ userClass }}
+              {{ userClass }}
               {% else %}
-                {{ userClass|truncatechars:10 }}
+              {{ userClass|truncatechars:10 }}
               {% endif %}
             </span>
           </a>
@@ -140,15 +142,21 @@
             <span class="float-left">Email : </span>
             <span title="{{userEmail}}" class="float-right ">
               {% if userEmail|length < 10 %}
-                {{ userEmail }}
+              {{ userEmail }}
               {% else %}
-                {{ userEmail|truncatechars:10 }}
+              {{ userEmail|truncatechars:10 }}
               {% endif %}
             </span>
           </a>
           {% endif %}
 
           <div class="dropdown-divider"></div>
+
+          <a class="dropdown-item text-center" data-toggle="modal" data-target="#changePasswordModal">
+            <i class="fas fa-cog fa-sm fa-fw mr-2 text-gray-400"></i>
+            Change Password
+          </a>
+
           <a class="dropdown-item text-center" href="/logout" data-toggle="modal" data-target="#logoutModal">
             <i class="fas fa-sign-out-alt fa-sm fa-fw mr-2 text-gray-400"></i>
             Logout
@@ -163,6 +171,116 @@
   {% block content %}
 
   {% endblock %}
+
+  <!-- Scroll to Top Button-->
+  <a class="scroll-to-top rounded" href="#page-top">
+    <i class="fas fa-angle-up"></i>
+  </a>
+
+  <!-- Logout Modal-->
+  <div class="modal fade" id="logoutModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
+    aria-hidden="true">
+    <div class="modal-dialog" role="document">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="exampleModalLabel">Ready to Leave?</h5>
+          <button class="close" type="button" data-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">×</span>
+          </button>
+        </div>
+        <div class="modal-body">Select "Logout" below if you are ready to end your current session.</div>
+        <div class="modal-footer">
+          <button class="btn btn-secondary" type="button" data-dismiss="modal">Cancel</button>
+          <a class="btn btn-primary" href="/logout">Logout</a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Change Password Modal-->
+  <div class="modal fade" id="changePasswordModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
+    aria-hidden="true">
+    <div class="modal-dialog" role="document">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="exampleModalLabel">Change Password</h5>
+          <button class="close" type="button" data-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">×</span>
+          </button>
+        </div>
+        <form method="POST">
+          {% csrf_token %}
+          <div class="modal-body">
+            <div class="form-group row">
+              <label for="oldPassword" class="col-sm-2 col-form-label">old Password</label>
+              <div class="col-sm-10">
+                <input required name="oldPassword" type="password" class="form-control" id="oldPassword"
+                  placeholder="*****" onchange="checkPassword()" oninput="checkPassword()" onkeyup="checkPassword()" onkeydown="checkPassword()">
+              </div>
+            </div>
+
+            <div class="form-group row">
+              <label for="newPassword" class="col-sm-2 col-form-label">new Password</label>
+              <div class="col-sm-10">
+                <input required name="newPassword" type="password" class="form-control" id="newPassword"
+                  placeholder="*****" onchange="checkPassword()" oninput="checkPassword()" onkeyup="checkPassword()" onkeydown="checkPassword()">
+              </div>
+            </div>
+
+            <div class="form-group row">
+              <label for="reEnterPassword" class="col-sm-2 col-form-label">Confirm new Password</label>
+              <div class="col-sm-10">
+                <input required name="reEnterPassword" type="password" class="form-control" id="reEnterPassword"
+                  placeholder="*****" onchange="checkPassword()" oninput="checkPassword()" onkeyup="checkPassword()" onkeydown="checkPassword()">
+              </div>
+            </div>
+
+            <span id="passwordCheckMsg"></span>
+
+          </div>
+          <div class="modal-footer">
+            <button class="btn btn-secondary" type="button" data-dismiss="modal">Cancel</button>
+            <button class="btn btn-secondary" id="changePassword" name="changePassword">Change Password</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    var checkPassword = function checkPassword () {      
+      if (document.getElementById('newPassword').value == "" ||
+              document.getElementById('newPassword').value == " " )
+      {
+        document.getElementById('passwordCheckMsg').style.color = 'red';
+        document.getElementById('passwordCheckMsg').innerHTML = 'Passwords cannot be empty';        
+        return false;
+      }
+
+      else if (document.getElementById('reEnterPassword').value == "" ||              
+              document.getElementById('reEnterPassword').value == " ")
+      {
+        document.getElementById('passwordCheckMsg').style.color = 'red';
+        document.getElementById('passwordCheckMsg').innerHTML = 'Passwords cannot be empty';        
+        return false;
+      }
+
+      else if (document.getElementById('newPassword').value !=
+              document.getElementById('reEnterPassword').value )  
+      {
+        document.getElementById('passwordCheckMsg').style.color = 'red';
+        document.getElementById('passwordCheckMsg').innerHTML = 'Passwords do not match';        
+        return false;
+      }
+      else 
+      {
+        document.getElementById('passwordCheckMsg').innerHTML = '';
+        document.getElementById('changePassword').disabled = false; 
+        document.getElementById('changePassword').className = "btn btn-primary";
+        return true;       
+      }
+    }
+  </script>
 
   <!-- Bootstrap core JavaScript-->
   <script src="{%static '/vendor/jquery/jquery.min.js' %}"></script>
