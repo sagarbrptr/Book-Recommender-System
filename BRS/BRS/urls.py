@@ -16,6 +16,7 @@ urlpatterns = [
     url(r'^studentHome$', studentView.studentHome, name = "studentHome"),
     url(r'^recommendLibrary$', studentView.recommendLibrary, name = "recommendLibrary"),
     url(r'^studentRecommendation$', studentView.studentRecommendation, name = "studentRecommendation"),
+    url(r'^userProfile$', studentView.userProfile, name="userProfile"),
 
     # Librarian
     url(r'^librarianHome$', librarianView.librarianHome, name="librarianHome"),

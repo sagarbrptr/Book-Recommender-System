@@ -9,7 +9,7 @@
   <meta name="description" content="">
   <meta name="author" content="">
 
-  <title>BRS Issue history</title>
+  <title>BRS</title>
 
   {% load static %}
   <link href="{%static 'vendor/fontawesome-free/css/all.min.css' %}" rel="stylesheet" type="text/css">
@@ -84,77 +84,12 @@
           <i class="fa fa-user" aria-hidden="true"></i>
         </a>
         <!-- Dropdown - User Information -->
-        <div class="dropdown-menu dropdown-menu-right shadow animated--grow-in" aria-labelledby="userDropdown">
-          <a class="dropdown-item">
-            <span class="float-left">Reg No : </span>
-            <span title="{{userCardnumber}}" class="float-right ">
+        <div class="dropdown-menu dropdown-menu-right shadow animated--grow-in" aria-labelledby="userDropdown">        
+          <!-- <div class="dropdown-divider"></div> -->
 
-              {% if userCardnumber|length < 8 %}
-              {{ userCardnumber }}
-              {% else %}
-              {{ userCardnumber|truncatechars:8 }}
-              {% endif %}
-
-            </span>
-          </a>
-
-          {% if userRollNo %}
-          <a class="dropdown-item">
-            <span class="float-left">Roll No : </span>
-            <span title="{{userRollNo}}" class="float-right ">
-              {% if userRollNo|length < 10 %}
-              {{ userRollNo }}
-              {% else %}
-              {{ userRollNo|truncatechars:10 }}
-              {% endif %}
-            </span>
-          </a>
-          {% endif %}
-
-          {% if userGender %}
-          <a class="dropdown-item">
-            <span class="float-left">Gender : </span>
-            <span title="{{userGender}}" class="float-right ">
-              {% if userGender|length < 10 %}
-              {{ userGender }}
-              {% else %}
-              {{ userGender|truncatechars:10 }}
-              {% endif %}
-            </span>
-          </a>
-          {% endif %}
-
-          {% if userClass %}
-          <a class="dropdown-item">
-            <span class="float-left">Class : </span>
-            <span title="{{userClass}}" class="float-right ">
-              {% if userClass|length < 10 %}
-              {{ userClass }}
-              {% else %}
-              {{ userClass|truncatechars:10 }}
-              {% endif %}
-            </span>
-          </a>
-          {% endif %}
-
-          {% if userEmail %}
-          <a class="dropdown-item">
-            <span class="float-left">Email : </span>
-            <span title="{{userEmail}}" class="float-right ">
-              {% if userEmail|length < 10 %}
-              {{ userEmail }}
-              {% else %}
-              {{ userEmail|truncatechars:10 }}
-              {% endif %}
-            </span>
-          </a>
-          {% endif %}
-
-          <div class="dropdown-divider"></div>
-
-          <a class="dropdown-item text-center" data-toggle="modal" data-target="#changePasswordModal">
-            <i class="fas fa-cog fa-sm fa-fw mr-2 text-gray-400"></i>
-            Change Password
+          <a class="dropdown-item text-center" href="/userProfile">
+            <i class="fas fa-user fa-sm fa-fw mr-2 text-gray-400"></i>
+            User Profile
           </a>
 
           <a class="dropdown-item text-center" href="/logout" data-toggle="modal" data-target="#logoutModal">
@@ -173,7 +108,7 @@
   {% endblock %}
 
   <!-- Scroll to Top Button-->
-  <a class="scroll-to-top rounded" href="#page-top">
+  <a class="scroll-to-top rounded" style="z-index: 1;" href="#page-top">
     <i class="fas fa-angle-up"></i>
   </a>
 
@@ -196,91 +131,6 @@
       </div>
     </div>
   </div>
-
-  <!-- Change Password Modal-->
-  <div class="modal fade" id="changePasswordModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
-    aria-hidden="true">
-    <div class="modal-dialog" role="document">
-      <div class="modal-content">
-        <div class="modal-header">
-          <h5 class="modal-title" id="exampleModalLabel">Change Password</h5>
-          <button class="close" type="button" data-dismiss="modal" aria-label="Close">
-            <span aria-hidden="true">×</span>
-          </button>
-        </div>
-        <form method="POST">
-          {% csrf_token %}
-          <div class="modal-body">
-            <div class="form-group row">
-              <label for="oldPassword" class="col-sm-2 col-form-label">old Password</label>
-              <div class="col-sm-10">
-                <input required name="oldPassword" type="password" class="form-control" id="oldPassword"
-                  placeholder="*****" onchange="checkPassword()" oninput="checkPassword()" onkeyup="checkPassword()" onkeydown="checkPassword()">
-              </div>
-            </div>
-
-            <div class="form-group row">
-              <label for="newPassword" class="col-sm-2 col-form-label">new Password</label>
-              <div class="col-sm-10">
-                <input required name="newPassword" type="password" class="form-control" id="newPassword"
-                  placeholder="*****" onchange="checkPassword()" oninput="checkPassword()" onkeyup="checkPassword()" onkeydown="checkPassword()">
-              </div>
-            </div>
-
-            <div class="form-group row">
-              <label for="reEnterPassword" class="col-sm-2 col-form-label">Confirm new Password</label>
-              <div class="col-sm-10">
-                <input required name="reEnterPassword" type="password" class="form-control" id="reEnterPassword"
-                  placeholder="*****" onchange="checkPassword()" oninput="checkPassword()" onkeyup="checkPassword()" onkeydown="checkPassword()">
-              </div>
-            </div>
-
-            <span id="passwordCheckMsg"></span>
-
-          </div>
-          <div class="modal-footer">
-            <button class="btn btn-secondary" type="button" data-dismiss="modal">Cancel</button>
-            <button class="btn btn-secondary" id="changePassword" name="changePassword">Change Password</button>
-          </div>
-        </form>
-      </div>
-    </div>
-  </div>
-
-  <script>
-    var checkPassword = function checkPassword () {      
-      if (document.getElementById('newPassword').value == "" ||
-              document.getElementById('newPassword').value == " " )
-      {
-        document.getElementById('passwordCheckMsg').style.color = 'red';
-        document.getElementById('passwordCheckMsg').innerHTML = 'Passwords cannot be empty';        
-        return false;
-      }
-
-      else if (document.getElementById('reEnterPassword').value == "" ||              
-              document.getElementById('reEnterPassword').value == " ")
-      {
-        document.getElementById('passwordCheckMsg').style.color = 'red';
-        document.getElementById('passwordCheckMsg').innerHTML = 'Passwords cannot be empty';        
-        return false;
-      }
-
-      else if (document.getElementById('newPassword').value !=
-              document.getElementById('reEnterPassword').value )  
-      {
-        document.getElementById('passwordCheckMsg').style.color = 'red';
-        document.getElementById('passwordCheckMsg').innerHTML = 'Passwords do not match';        
-        return false;
-      }
-      else 
-      {
-        document.getElementById('passwordCheckMsg').innerHTML = '';
-        document.getElementById('changePassword').disabled = false; 
-        document.getElementById('changePassword').className = "btn btn-primary";
-        return true;       
-      }
-    }
-  </script>
 
   <!-- Bootstrap core JavaScript-->
   <script src="{%static '/vendor/jquery/jquery.min.js' %}"></script>

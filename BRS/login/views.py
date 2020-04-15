@@ -29,6 +29,10 @@ def validate_user(username, password):
 
 
 def loginview(request):
+    # always logout when redirected to login
+    logout(request)
+
+    passwordChanged = False
     loginFailed = False
     user = ""
 
@@ -68,6 +72,7 @@ def loginview(request):
                 loginFailed = True
 
     context = {
+        "passwordChanged" : passwordChanged,
         "loginFailed": loginFailed
     }
     return render(request, 'login/login.html', context)

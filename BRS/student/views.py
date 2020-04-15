@@ -1,15 +1,17 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
 from django.db import connection, transaction
-from django.shortcuts import render, render_to_response,redirect
+from django.shortcuts import render, render_to_response, redirect
 from django.http import HttpResponse
 # import mysql.connector
 from django.template import RequestContext
 
 # from student.models import *
-from django.contrib.auth import authenticate, login, logout 
+from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
+from django.contrib import messages
+
 
 
 class DB:
@@ -89,6 +91,7 @@ class DB:
 
         return True
 
+
 @login_required(login_url="/login")
 def studentHome(request):
 
@@ -97,9 +100,10 @@ def studentHome(request):
         userCardnumber = request.user.username
 
     database = DB()
-    
+
     query = "select distinct b.title, b.barcode, t.DATE " + "from books as b, transaction as t" + \
-        " where b.barcode = t.barcode and t.cardnumber = '" + userCardnumber + "' group by title; "
+        " where b.barcode = t.barcode and t.cardnumber = '" + \
+            userCardnumber + "' group by title; "
     errorMsg = "Error in selecting from books"
     # print(query)
 
@@ -121,14 +125,15 @@ def studentHome(request):
         temp["DATE"] = str(i[2])
 
         query_get_rating = "select rating,valid from ratings where barcode = (select bt.barcode from bt_map bt where bt.title ='" + \
-            temp["title"] + "' limit 1) and cardnumber = '" + userCardnumber + "';"
+            temp["title"] + "' limit 1) and cardnumber = '" + \
+            userCardnumber + "';"
         errorMsg = "Error in selecting rating from ratings"
 
         res = database.select(query_get_rating, errorMsg)
 
-        if res :
+        if res:
             temp["rating"] = res[0][0]
-            temp["valid"] = res[0][1]        
+            temp["valid"] = res[0][1]
 
         result.append(temp)
 
@@ -138,6 +143,7 @@ def studentHome(request):
     }
 
     return render(request, 'student/issue-history.html', context)
+
 
 def increaseRequestCount(database, request, userCardnumber, srNo):
 
@@ -182,8 +188,9 @@ def increaseRequestCount(database, request, userCardnumber, srNo):
     if not failMsg:
         successMsg = "New Book Recommended"
         database.commit()
-    
+
     return alreadyRequested, newRequest, failMsg, successMsg
+
 
 @login_required(login_url="/login")
 def recommendLibrary(request):
@@ -234,9 +241,9 @@ def recommendLibrary(request):
                 temp = {}
                 temp["barcode"] = str(i[0])
                 temp["title"] = str(i[1])
-             
+
                 queryAuthor = "select author from books where barcode = '" + \
-                        temp['barcode'] + "' ;"
+                    temp['barcode'] + "' ;"
                 errorMsg = "Error in selecting author from books_db or books"
 
                 author = database.select(queryAuthor, errorMsg)
@@ -247,7 +254,6 @@ def recommendLibrary(request):
                     temp['author'] = str(author[0][0])
 
                 libraryResult.append(temp)
-
 
 
     if request.POST.get('checkRecommendedBooks'):   # Check already Recommended books
@@ -285,7 +291,7 @@ def recommendLibrary(request):
         searchBook = False
         checkRecommendedBooks = False
 
-    if request.POST.get('newBookSubmit'):   # New book info is submitted        
+    if request.POST.get('newBookSubmit'):   # New book info is submitted
 
         newBookRecommendation = True
         searchBook = False
@@ -306,7 +312,7 @@ def recommendLibrary(request):
         errorMsg = "Error in selecting in libraryRecommendation"
 
         row = database.select(query, errorMsg)
-        
+
         if row:
             if not len(row):    # does not exists,  new Book is recommended
                 newRequest = True
@@ -323,7 +329,7 @@ def recommendLibrary(request):
                     getSrNo = "select max(srNo) from libraryRecommendation ;"
                     errorMsg = "Error in selecting max srNo from libraryRecommendation"
 
-                    latestSrNo = database.select(getSrNo, errorMsg)                
+                    latestSrNo = database.select(getSrNo, errorMsg)
 
                     # If valid srNo found, insert in bookRequest
                     if latestSrNo:
@@ -364,10 +370,10 @@ def recommendLibrary(request):
                 srNo = str(row[0][0])
                 alreadyRequested,  newRequest, failMsg, successMsg = increaseRequestCount(
                     database, request, userCardnumber, srNo)
-        
+
         else:
             failMsg = "Error in title. Check if you have not inserted any quotes!! (-_-)"
-    
+
     if request.POST.get("increaseRequestCount"):
         newBookRecommended = True
         srNo = request.POST.get("increaseRequestCount")
@@ -375,8 +381,7 @@ def recommendLibrary(request):
         database.beginTransaction()
 
         alreadyRequested,  newRequest, failMsg, successMsg = increaseRequestCount(
-                database, request, userCardnumber, srNo)
-
+            database, request, userCardnumber, srNo)
 
     context = {
         'searchBook': searchBook,
@@ -399,6 +404,7 @@ def recommendLibrary(request):
     }
     return render(request, 'student/recommend-library.html', context)
 
+
 @login_required(login_url="/login")
 def studentRecommendation(request):
 
@@ -408,3 +414,77 @@ def studentRecommendation(request):
         'result': result
     }
     return render(request, 'student/recommend-student.html', context)
+
+
+@login_required(login_url="/login")
+def userProfile(request):
+    database = DB()
+    passwordChanged = False
+    passwordSubmit = False
+    failMsg = ""
+    user = ""
+
+    if request.POST.get('changePassword'):
+        passwordSubmit = True
+
+        # Get current cardNumber
+        userCardnumber = ""
+        if request.user.is_authenticated():
+            userCardnumber = request.user.username
+
+        # Get user from django user model
+        try:
+            user = User.objects.get(username=userCardnumber)
+
+        except:
+            failMsg = "Error in retrieving user object from django user model"
+
+        if user:
+            oldPassword = request.POST.get("oldPassword")
+            newPassword = request.POST.get("newPassword")
+
+            # Start Transaction
+            database.beginTransaction()
+
+            # If old password is correct, update new Password
+            if user.check_password(oldPassword):
+
+                # Update in db
+                updateQuery = "update user set password = '" + newPassword + \
+                    "' where cardnumber = '" + userCardnumber + "';"
+                errorMsg = "Error in updating password in database"
+
+                # If update in db successful, update in django
+                if database.insertOrUpdateOrDelete(updateQuery, errorMsg):
+
+                    # Update in django user model
+                    try:
+                        user.set_password(newPassword)
+                        user.save()
+
+                        passwordChanged = True
+                        messages.add_message(request, messages.INFO, "Password has been Changed Successfully. Please Login again")
+                        return redirect("/login")
+
+                    # Error in updating in django
+                    except:
+                        failMsg = "Error in updating password"
+                        database.rollback()
+
+                # Else, error in updating in db rollback
+                else:
+                    failMsg = "Error in updating password"
+                    database.rollback()
+
+            # Else, old password is wrong
+            else:
+                failMsg = "Old Password is not correct"
+                database.rollback()
+
+
+    context = {
+        "passwordSubmit": passwordSubmit,
+        "passwordChanged": passwordChanged,
+        "failMsg": failMsg,
+    }
+    return render(request, 'student/user-profile.html', context)

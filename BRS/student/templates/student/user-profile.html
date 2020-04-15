@@ -1,0 +1,224 @@
+{% include "student/base-layout-student.html" %}
+
+{% block content %}
+<!-- Page Wrapper -->
+<div id="wrapper">
+
+
+    <!-- Content Wrapper -->
+    <div id="content-wrapper" class="d-flex flex-column">
+
+        <!-- Main Content -->
+        <div id="content">
+
+            <!-- Begin Page Content -->
+            <div class="container-fluid">
+
+                {% if passwordSubmit and failMsg %}
+                <div class="alert alert-danger" role="alert">
+                    {{failMsg}}
+                </div>
+
+                {% endif %}
+
+                <!-- Page Heading -->
+                <h1 class="h3 mb-2 text-gray-800">User Profile </h1>
+                <p class="mb-4">User information available in library</p>
+
+                <div class="form-group row">
+                    <label for="Name" class="col-sm-2 col-form-label">Name</label>
+                    <div class="col-sm-10">
+                        <input style="cursor: not-allowed;" disabled name="Name" value="{{userName}}" type="text"
+                            class="form-control w-50" id="Name">
+                    </div>
+                </div>
+
+                <div class="form-group row">
+                    <label for="CardNo" class="col-sm-2 col-form-label">Registration No</label>
+                    <div class="col-sm-10">
+                        <input style="cursor: not-allowed;" disabled name="cardNo" value="{{userCardnumber}}"
+                            type="text" class="form-control w-50" id="cardNo">
+                    </div>
+                </div>
+
+                {% if userRollNo %}
+                <div class="form-group row">
+                    <label for="rollNo" class="col-sm-2 col-form-label">Roll No</label>
+                    <div class="col-sm-10">
+                        <input style="cursor: not-allowed;" disabled name="rollNo" value="{{userRollNo}}" type="text"
+                            class="form-control w-50" id="rollNo">
+                    </div>
+                </div>
+                {% endif %}
+
+                {% if userGender %}
+                <div class="form-group row">
+                    <label for="Gender" class="col-sm-2 col-form-label">Gender</label>
+                    <div class="col-sm-10">
+                        <input style="cursor: not-allowed;" disabled name="Gender" value="{{userGender}}" type="text"
+                            class="form-control w-50" id="Gender">
+                    </div>
+                </div>
+                {% endif %}
+
+                {% if userClass %}
+                <div class="form-group row">
+                    <label for="Class" class="col-sm-2 col-form-label">Class</label>
+                    <div class="col-sm-10">
+                        <input style="cursor: not-allowed;" disabled name="Class" value="{{userClass}}" type="text"
+                            class="form-control w-50" id="Class">
+                    </div>
+                </div>
+                {% endif %}
+
+                {% if userEmail %}
+                <div class="form-group row">
+                    <label for="Email" class="col-sm-2 col-form-label">Email</label>
+                    <div class="col-sm-10">
+                        <input style="cursor: not-allowed;" disabled name="Email" value="{{userEmail}}" type="text"
+                            class="form-control w-50" id="Email">
+                    </div>
+                </div>
+                {% endif %}
+
+                <div class="card mt-5">
+                    <div class="card-body border border-primary">
+                        <div class="text-center mb-2 mt-2">
+                            Change Password
+                        </div>
+
+                        <form method="POST">
+                            {% csrf_token %}
+                            <div class="form-group row">
+                                <label for="oldPassword" class="col-sm-2 col-form-label">old Password</label>
+                                <div class="col-sm-10">
+                                    <input required name="oldPassword" type="password" class="form-control"
+                                        id="oldPassword" placeholder="*****" onchange="checkPassword()"
+                                        oninput="checkPassword()" onkeyup="checkPassword()" onkeydown="checkPassword()">
+                                </div>
+                            </div>
+
+                            <div class="form-group row">
+                                <label for="newPassword" class="col-sm-2 col-form-label">new Password</label>
+                                <div class="col-sm-10">
+                                    <input required name="newPassword" type="password" class="form-control"
+                                        id="newPassword" placeholder="*****" onchange="checkPassword()"
+                                        oninput="checkPassword()" onkeyup="checkPassword()" onkeydown="checkPassword()">
+                                </div>
+                            </div>
+
+                            <div class="form-group row">
+                                <label for="reEnterPassword" class="col-sm-2 col-form-label">Confirm new
+                                    Password</label>
+                                <div class="col-sm-10">
+                                    <input required name="reEnterPassword" type="password" class="form-control"
+                                        id="reEnterPassword" placeholder="*****" onchange="checkPassword()"
+                                        oninput="checkPassword()" onkeyup="checkPassword()" onkeydown="checkPassword()">
+                                </div>
+                            </div>
+
+                            <span id="passwordCheckMsg"></span>
+                            <br>
+
+                            <div class="text-center">
+                                <button disabled class="btn btn-secondary" id="changePassword" value="changePassword"
+                                    name="changePassword">Change
+                                    Password</button>
+                            </div>
+                        </form>
+                    </div>
+
+                </div>
+
+            </div>
+            <!-- /.container-fluid -->
+
+        </div>
+        <!-- End of Main Content -->
+
+        <!-- Footer -->
+        <footer class="sticky-footer bg-white">
+            <div class="container my-auto">
+                <div class="copyright text-center my-auto">
+                    <span>Copyright &copy; Group No 13</span>
+                </div>
+            </div>
+        </footer>
+        <!-- End of Footer -->
+
+    </div>
+    <!-- End of Content Wrapper -->
+
+</div>
+<!-- End of Page Wrapper -->
+
+<script>
+    var checkPassword = function checkPassword() 
+    {
+        // Old password cannot be empty
+        if (document.getElementById('oldPassword').value == "" ||
+            document.getElementById('oldPassword').value == " ") 
+        {
+            document.getElementById('passwordCheckMsg').style.color = 'red';
+            document.getElementById('passwordCheckMsg').innerHTML = 'Old Password cannot be empty';
+            document.getElementById('changePassword').disabled = true;
+            document.getElementById('changePassword').className = "btn btn-secondary";
+            return false;
+        }
+
+        // new Password cannot be empty
+        else if (document.getElementById('newPassword').value == "" ||
+            document.getElementById('newPassword').value == " ") 
+        {
+            document.getElementById('passwordCheckMsg').style.color = 'red';
+            document.getElementById('passwordCheckMsg').innerHTML = 'Passwords cannot be empty';
+            document.getElementById('changePassword').disabled = true;
+            document.getElementById('changePassword').className = "btn btn-secondary";
+            return false;
+        }
+
+        // confirm Password cannot be empty 
+        else if (document.getElementById('reEnterPassword').value == "" ||
+            document.getElementById('reEnterPassword').value == " ") 
+        {
+            document.getElementById('passwordCheckMsg').style.color = 'red';
+            document.getElementById('passwordCheckMsg').innerHTML = 'Passwords cannot be empty';
+            document.getElementById('changePassword').disabled = true;
+            document.getElementById('changePassword').className = "btn btn-secondary";
+            return false;
+        }
+
+        // new password and confirm password do not match
+        else if (document.getElementById('newPassword').value !=
+            document.getElementById('reEnterPassword').value) 
+        {
+            document.getElementById('passwordCheckMsg').style.color = 'red';
+            document.getElementById('passwordCheckMsg').innerHTML = 'Passwords do not match';
+            document.getElementById('changePassword').disabled = true;
+            document.getElementById('changePassword').className = "btn btn-secondary";
+            return false;
+        }
+
+        // new pass and old password are same
+        else if (document.getElementById('newPassword').value ==
+            document.getElementById('oldPassword').value) 
+        {
+            document.getElementById('passwordCheckMsg').style.color = 'red';
+            document.getElementById('passwordCheckMsg').innerHTML = 'Old Passwords and new Password cannot be same';
+            document.getElementById('changePassword').disabled = true;
+            document.getElementById('changePassword').className = "btn btn-secondary";
+            return false;
+        }
+
+        // success
+        else 
+        {
+            document.getElementById('passwordCheckMsg').innerHTML = '';
+            document.getElementById('changePassword').disabled = false;
+            document.getElementById('changePassword').className = "btn btn-primary";
+            return true;
+        }
+    }
+</script>
+
+{% endblock %}
