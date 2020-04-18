@@ -7,6 +7,7 @@ from django.template import RequestContext
 import random
 from django.contrib.admin.views.decorators import staff_member_required
 
+
 class DB:
 
     def __init__(self):
@@ -135,6 +136,7 @@ def insertBook(request, database):
         database.rollback()
         return False
 
+
 @staff_member_required
 def librarianHome(request):
 
@@ -211,6 +213,7 @@ def librarianHome(request):
 
     return render(request, 'librarian/librarian-home.html', context)
 
+
 @staff_member_required
 def librarianRecommendation(request):
     recommendedBook = []
@@ -282,9 +285,105 @@ def librarianRecommendation(request):
 
     return render(request, 'librarian/librarian-recommendation.html', context)
 
+
 @staff_member_required
 def librarianStatistics(request):
-    return render(request, 'librarian/librarian-statistics.html')
+    mostIssuedBooks = []
+    mostRequestedBooks = []
+    highestRatedBooks = []
+    mostFrequentReader = []
+    database = DB()
+
+    # Most Issued Books
+    query = "select books.title as title, count(books.title) as count " + \
+        "from books, transaction where transaction.barcode = books.barcode " + \
+            "group by title order by count(books.title) desc limit 20;"
+    errorMsg = "Error in selecting Most Issued Books"
+
+    row = database.select(query, errorMsg)
+    if row:
+        for i in row:
+            temp = {}
+            temp['title'] = i[0]
+            temp['issueCount'] = i[1]
+
+            mostIssuedBooks.append(temp)
+
+    # Most Requested Books
+    query = "select * from libraryRecommendation " + \
+        "where requestCount != 1 order by requestCount desc limit 10;"
+    errorMsg = "Error in selecting Most Requested Books"
+
+    row = database.select(query, errorMsg)
+    if row:
+        for i in row:
+            temp = {}
+            temp['title'] = i[1]
+            temp['author'] = i[2]
+            temp['requestCount'] = i[4]
+
+            mostRequestedBooks.append(temp)
+
+    # Highest Rated book according to rating and isuue count
+    query = "select barcode, rating, count(barcode) " + \
+        "from ratings group by barcode order by rating desc, count(barcode) desc limit 20;"
+    errorMsg = "Error in selecting Highest Rated Books"
+
+    row = database.select(query, errorMsg)
+    if row:
+        for i in row:
+            temp = {}
+            temp['barcode'] = row[0]
+            temp['rating'] = row[1]
+            temp['issueCount'] = row[2]
+
+            # Select Book name
+            selectBook = "select title from books where barcode = '" + \
+                str(i[0]) + "';"
+            errorMsg = "Error in selecting book name"
+
+            bookName = database.select(selectBook, errorMsg)
+            if bookName:
+                temp['title'] = bookName[0][0]
+            else:
+                temp['title'] = "Not Available"
+
+            highestRatedBooks.append(temp)
+
+    # Most Frequent Reader
+    query = "select cardnumber, count(cardnumber) as count " + \
+        "from transaction group by cardnumber order by count(cardnumber) desc limit 20;"
+    errorMsg = "Error in selecting Most Frequent Reader"
+
+    row = database.select(query, errorMsg)
+    if row:
+        for i in row:
+            temp = {}
+            temp['cardnumber'] = i[0]
+            temp['issueCount'] = i[1]
+
+            # Select User name from user table
+            selectUser = "select Name from user where cardnumber = '" + \
+                str(i[0]) + " ';"
+            errorMsg = "Error in selecting user"
+
+            user = database.select(selectUser, errorMsg)
+            if user:
+                temp['name'] = user[0][0]
+            else:
+                temp['name'] = "Not Available"
+
+            mostFrequentReader.append(temp)
+    
+    context = {
+        'mostIssuedBooks' : mostIssuedBooks,
+        'mostRequestedBooks' : mostRequestedBooks,
+        'highestRatedBooks' : highestRatedBooks,
+        'mostFrequentReader' : mostFrequentReader,
+    }
+    
+    return render(request, 'librarian/librarian-statistics.html', context)
+
 
 @staff_member_required
 def issueBook(request):
@@ -305,60 +404,64 @@ def issueBook(request):
 
         selectUser = "select cardnumber, Name from user where cardnumber = '" + \
             newCardNumber + "';"
-        errorMsg = "Error in selcting from user"        
+        errorMsg = "Error in selcting from user"
 
         # If a valid user, check barcode
-        if database.select(selectUser, errorMsg):           
+        if database.select(selectUser, errorMsg):
             table = "books"
 
             selectBarcode = "select title from " + table + " where barcode = '" + \
                 newBarocde + "';"
             errorMsg = "Error in selecting from books"
-            
+
             validTitle = database.select(selectBarcode, errorMsg)
             # If a valid barcode, insert in transaction
-            if validTitle : 
-                title = validTitle[0][0] # Needed in getting barcode from bt_map
+            if validTitle:
+                # Needed in getting barcode from bt_map
+                title = validTitle[0][0]
                 insertTransactionQuery = "insert into transaction VALUES (default, CURDATE(), '" + newBarocde + "', '" + newCardNumber + \
                     "', (select name from user where cardnumber = '" + \
                     newCardNumber + "'), '" + newBranchCode + "');"
                 errMsg = "Error in inserting in transaction"
                 # print(insertTransactionQuery)
 
-                # If insert in transaction successful, 
+                # If insert in transaction successful,
                 # insert in ratings through ratings
-                if database.insertOrUpdateOrDelete(insertTransactionQuery, errMsg):                    
+                if database.insertOrUpdateOrDelete(insertTransactionQuery, errMsg):
                     # Get Barcode from bt_map
                     selectBarcodeBt_map = "select barcode from bt_map where title = '" + title + "';"
                     errorMsg = "Error in selecting barcode from bt_map"
 
-                    validBarcode = database.select(selectBarcodeBt_map, errorMsg)
+                    validBarcode = database.select(
+                        selectBarcodeBt_map, errorMsg)
 
-                    # If valid barcode, 
-                    # check if same barcode and same user already exists in ratings                                        
-                    
+                    # If valid barcode,
+                    # check if same barcode and same user already exists in ratings
+
                     if validBarcode:
                         barcode = validBarcode[0][0]
 
-                        selectRating = "select * from ratings where barcode = '" + barcode + "' and cardnumber = '" + newCardNumber + "';"
+                        selectRating = "select * from ratings where barcode = '" + \
+                            barcode + "' and cardnumber = '" + newCardNumber + "';"
                         errorMsg = "Error in selecting from ratings"
 
-                        # If no entry in ratings 
+                        # If no entry in ratings
                         # insert in ratings
-                        if not database.select(selectRating, errorMsg):                      
-                            insertRatingsQuery = "insert into ratings values ('" + newCardNumber + "', '" + barcode + "', '" + str(random.randrange(1, 6)) + "', '0');"
+                        if not database.select(selectRating, errorMsg):
+                            insertRatingsQuery = "insert into ratings values ('" + newCardNumber + "', '" + barcode + "', '" + str(
+                                random.randrange(1, 6)) + "', '0');"
                             errorMsg = "Error in inserting in ratings"
 
-                            #If insert successful, commit
+                            # If insert successful, commit
                             if database.insertOrUpdateOrDelete(insertRatingsQuery, errorMsg):
                                 issueSuccessful = True
                                 database.commit()
-                            
+
                             # Else, error in inserting in ratings, commit
                             else:
                                 ErrMsg = "Error in inserting in ratings"
                                 database.rollback()
-                        
+
                         # Else, a rating already exists for given set, commit
                         else:
                             issueSuccessful = True
@@ -369,7 +472,7 @@ def issueBook(request):
                         ErrMsg = "Error in getting barcode from bt_map"
                         database.rollback()
 
-                # Else, error in inserting in transaction, rollback                                            
+                # Else, error in inserting in transaction, rollback
                 else:
                     ErrMsg = "Error in inserting in transaction table"
                     database.rollback()

@@ -8,9 +8,29 @@
 
         <!-- Begin Page Content -->
         <div class="container-fuild">
-            <h1>Works</h1>
-
-
+            <ul>
+                {% for i in mostIssuedBooks %}
+                <li>{{i.title}} : {{i.issueCount}}</li>
+                {% endfor %}
+            </ul>
+            <hr>
+            <ul>
+                {% for i in mostRequestedBooks %}
+                    <li>{{i.title}} : {{i.requestCount}}</li>
+                {% endfor %}
+            </ul>
+            <hr>
+            <ul>
+                {% for i in highestRatedBooks %}
+                    <li>{{i.title}} : {{i.issueCount}}</li>
+                {% endfor %}
+            </ul>
+            <hr><ul>
+                {% for i in mostFrequentReader %}
+                    <li>{{i.name}} : {{i.issueCount}}</li>
+                {% endfor %}
+            </ul>
+            <hr>
         </div>
         <!-- /.container-fluid -->
 
