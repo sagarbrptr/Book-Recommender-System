@@ -165,6 +165,7 @@ def librarianHome(request):
 
         table = "books"
 
+        # Check if given barcode exists or not
         selectQuery = "select * from " + table + \
             " where barcode = '" + deleteBarcode + "';"
         errorMsg = "Error in selecting from " + table
@@ -250,7 +251,7 @@ def librarianRecommendation(request):
         # Start transaction
         database.beginTransaction()
 
-        # Insert in books or books_db
+        # Insert in books
         # Insertion Successful, delete from libraryRecommendation
         if insertBook(request, database):
 
