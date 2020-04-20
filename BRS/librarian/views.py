@@ -4,7 +4,7 @@ from django.db import connection, transaction
 from django.shortcuts import render, render_to_response
 from django.http import HttpResponse
 from django.template import RequestContext
-import random
+import random,json
 from django.contrib.admin.views.decorators import staff_member_required
 
 
@@ -297,7 +297,7 @@ def librarianStatistics(request):
     # Most Issued Books
     query = "select books.title as title, count(books.title) as count " + \
         "from books, transaction where transaction.barcode = books.barcode " + \
-            "group by title order by count(books.title) desc limit 20;"
+            "group by title order by count(books.title) desc limit 10;"
     errorMsg = "Error in selecting Most Issued Books"
 
     row = database.select(query, errorMsg)
@@ -326,7 +326,7 @@ def librarianStatistics(request):
 
     # Highest Rated book according to rating and isuue count
     query = "select barcode, rating, count(barcode) " + \
-        "from ratings group by barcode order by rating desc, count(barcode) desc limit 20;"
+        "from ratings group by barcode order by rating desc, count(barcode) desc limit 10;"
     errorMsg = "Error in selecting Highest Rated Books"
 
     row = database.select(query, errorMsg)
@@ -352,7 +352,7 @@ def librarianStatistics(request):
 
     # Most Frequent Reader
     query = "select cardnumber, count(cardnumber) as count " + \
-        "from transaction group by cardnumber order by count(cardnumber) desc limit 20;"
+        "from transaction group by cardnumber order by count(cardnumber) desc limit 10;"
     errorMsg = "Error in selecting Most Frequent Reader"
 
     row = database.select(query, errorMsg)
@@ -375,11 +375,12 @@ def librarianStatistics(request):
 
             mostFrequentReader.append(temp)
     
+    //python dictionaries converted to json objects
     context = {
-        'mostIssuedBooks' : mostIssuedBooks,
-        'mostRequestedBooks' : mostRequestedBooks,
-        'highestRatedBooks' : highestRatedBooks,
-        'mostFrequentReader' : mostFrequentReader,
+        'mostIssuedBooks' : json.dumps(mostIssuedBooks),
+        'mostRequestedBooks' : json.dumps(mostRequestedBooks),
+        'highestRatedBooks' : json.dumps(highestRatedBooks),
+        'mostFrequentReader' : json.dumps(mostFrequentReader),
     }
     
     return render(request, 'librarian/librarian-statistics.html', context)

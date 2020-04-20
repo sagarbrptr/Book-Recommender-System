@@ -1,5 +1,129 @@
 {% include "librarian/base-layout-librarian.html" %}
 {% block content %}
+<head>
+    <!--Load the AJAX API-->
+    <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
+    <script type="text/javascript">
+    
+    // Load Charts and the corechart and barchart packages.
+    google.charts.load('current', {'packages':['corechart']});
+
+    // Draw the pie chart and bar chart when Charts is loaded.
+    google.charts.setOnLoadCallback(drawChart);
+    
+    function drawChart() 
+    {
+        //Most Issued Books
+        var mostIssuedBooks = {{ mostIssuedBooks|safe}};
+        var arrDataMostIssuedBooks=[    ["Book", "No. of Issues", { role: "style" } ]       ];
+        for(i in mostIssuedBooks)
+        {
+            arrDataMostIssuedBooks.push([mostIssuedBooks[i].title,mostIssuedBooks[i].issueCount,"gold"]);
+        }    
+        
+        var graphData = google.visualization.arrayToDataTable(arrDataMostIssuedBooks);
+        var view = new google.visualization.DataView(graphData);
+        view.setColumns([0, 1,
+                        { calc: "stringify",
+                            sourceColumn: 1,
+                            type: "string",
+                            role: "annotation" },
+                        2]);
+
+        var options = {
+            title: "Mostly Issued Books",
+            width: 1200,
+            height: 500,
+            bar: {groupWidth: "50%"},
+            legend: { position: "none" },
+        };
+        var chart = new google.visualization.BarChart(document.getElementById("barchart_mostly_issued"));
+        chart.draw(view, options);
+
+        //Most Requested Books
+        var mostRequestedBooks = {{ mostRequestedBooks|safe}};
+        var arrDataMostRequestedBooks=[    ["Book", "No. of Requests", { role: "style" } ]       ];
+        for(i in mostRequestedBooks)
+        {
+            arrDataMostRequestedBooks.push([mostRequestedBooks[i].title,mostRequestedBooks[i].requestCount,"color: #8C7853"]);
+        }    
+        
+        var graphData = google.visualization.arrayToDataTable(arrDataMostRequestedBooks);
+        var view = new google.visualization.DataView(graphData);
+        view.setColumns([0, 1,
+                        { calc: "stringify",
+                            sourceColumn: 1,
+                            type: "string",
+                            role: "annotation" },
+                        2]);
+
+        var options = {
+            title: "Most Requested Books",
+            width: 1200,
+            height: 500,
+            bar: {groupWidth: "50%"},
+            legend: { position: "none" },
+        };
+        var chart = new google.visualization.BarChart(document.getElementById("barchart_most_requested"));
+        chart.draw(view, options);
+        
+        //Highest Rated Books
+        // var highestRatedBooks = {{ highestRatedBooks|safe}};
+        // var arrDataHighestRatedBooks=[    ["", "Name", { role: "style" } ]       ];
+        // for(i in highestRatedBooks)
+        // {
+        //     arrDataHighestRatedBooks.push(["",highestRatedBooks[i].title,"color: #8C7853"]);
+        // }    
+        
+        // var graphData = google.visualization.arrayToDataTable(arrDataHighestRatedBooks);
+        // var view = new google.visualization.DataView(graphData);
+        // view.setColumns([0, 1,
+        //                 { calc: "stringify",
+        //                     sourceColumn: 1,
+        //                     type: "string",
+        //                     role: "annotation" },
+        //                 2]);
+
+        // var options = {
+        //     title: "Highest Rated Books according to rating and issue count",
+        //     width: 1200,
+        //     height: 500,
+        //     bar: {groupWidth: "50%"},
+        //     legend: { position: "none" },
+        // };
+        // var chart = new google.visualization.BarChart(document.getElementById("barchart_highest_rated_books"));
+        // chart.draw(view, options);
+
+        //Most Frequent Reader
+        var mostFrequentReader = {{ mostFrequentReader|safe}};
+        var arrDataMostFrequentReader=[    ["Name", "No. of Issues", { role: "style" } ]       ];
+        for(i in mostFrequentReader)
+        {
+            arrDataMostFrequentReader.push([mostFrequentReader[i].name,mostFrequentReader[i].issueCount,"gold"]);
+        }    
+        
+        var graphData = google.visualization.arrayToDataTable(arrDataMostFrequentReader);
+        var view = new google.visualization.DataView(graphData);
+        view.setColumns([0, 1,
+                        { calc: "stringify",
+                            sourceColumn: 1,
+                            type: "string",
+                            role: "annotation" },
+                        2]);
+
+        var options = {
+            title: "Most Frequent Reader",
+            width: 1200,
+            height: 500,
+            bar: {groupWidth: "50%"},
+            legend: { position: "none" },
+        };
+        var chart = new google.visualization.BarChart(document.getElementById("barchart_most_frequent_reader"));
+        chart.draw(view, options);
+        
+    }
+    </script>
+  </head>
 <!-- Content Wrapper -->
 <div id="content-wrapper" class="d-flex flex-column">
 
@@ -8,29 +132,45 @@
 
         <!-- Begin Page Content -->
         <div class="container-fuild">
-            <ul>
-                {% for i in mostIssuedBooks %}
-                <li>{{i.title}} : {{i.issueCount}}</li>
-                {% endfor %}
-            </ul>
-            <hr>
-            <ul>
-                {% for i in mostRequestedBooks %}
-                    <li>{{i.title}} : {{i.requestCount}}</li>
-                {% endfor %}
-            </ul>
-            <hr>
-            <ul>
-                {% for i in highestRatedBooks %}
-                    <li>{{i.title}} : {{i.issueCount}}</li>
-                {% endfor %}
-            </ul>
-            <hr><ul>
-                {% for i in mostFrequentReader %}
-                    <li>{{i.name}} : {{i.issueCount}}</li>
-                {% endfor %}
-            </ul>
-            <hr>
+                    
+                <!--Begin Chart Cards-->
+                    <div class="card shadow  mt-5 ml-3 mr-3">
+                        <div class="card-header py-3">
+                        <h6 class="m-0 font-weight-bold text-primary">Mostly Issued Books</h6>
+                        </div>
+                        <div class="card-body">
+                            <div id="barchart_mostly_issued" ></div>  
+                        </div>
+                    </div>
+                    
+                    <div class="card shadow  mt-5 ml-3 mr-3">
+                        <div class="card-header py-3">
+                        <h6 class="m-0 font-weight-bold text-primary">Most Requested Books</h6>
+                        </div>
+                        <div class="card-body">
+                            <div id="barchart_most_requested" ></div>  
+                        </div>
+                    </div>
+
+                    <!--div class="card shadow  mt-5 ml-3 mr-3">
+                        <div class="card-header py-3">
+                        <h6 class="m-0 font-weight-bold text-primary">Highest Rated Books</h6>
+                        </div>
+                        <div class="card-body">
+                            <div id="barchart_highest_rated_books" ></div>  
+                        </div>
+                    </div-->
+
+                    <div class="card shadow  mt-5 ml-3 mr-3">
+                        <div class="card-header py-3">
+                        <h6 class="m-0 font-weight-bold text-primary">Most Frequent Reader</h6>
+                        </div>
+                        <div class="card-body">
+                            <div id="barchart_most_frequent_reader" ></div>  
+                        </div>
+                    </div>
+                 <!--End Chart Cards-->
+
         </div>
         <!-- /.container-fluid -->
 
@@ -50,6 +190,4 @@
 </div>
 <!-- End of Content Wrapper -->
 
-</div>
-<!-- End of Page Wrapper -->
 {% endblock %}
