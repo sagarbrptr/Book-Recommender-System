@@ -7,6 +7,8 @@ from django.template import RequestContext
 import random,json
 from django.contrib.admin.views.decorators import staff_member_required
 
+from django.core.cache import cache
+from django.views.decorators.cache import cache_page
 
 class DB:
 
@@ -288,6 +290,7 @@ def librarianRecommendation(request):
 
 
 @staff_member_required
+@cache_page(60 * 15)
 def librarianStatistics(request):
     mostIssuedBooks = []
     mostRequestedBooks = []

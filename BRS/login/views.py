@@ -3,8 +3,8 @@ from __future__ import unicode_literals
 from django.db import connection, transaction
 from django.shortcuts import render, render_to_response, redirect
 from django.http import HttpResponse
-# import mysql.connector
 from django.template import RequestContext
+from django.core.cache import cache
 
 # from student.models import *
 from django.contrib.auth import authenticate, login, logout
@@ -66,7 +66,9 @@ def loginview(request):
                 if user.is_staff:
                     return redirect("/librarianHome") 
                 else:
-                     return redirect("/studentHome")
+                     cache.set('userCardNumber', username)
+                     return redirect("/studentHome")                     
+
 
             else:
                 loginFailed = True
@@ -78,8 +80,12 @@ def loginview(request):
     return render(request, 'login/login.html', context)
 
 
-def logoutview(request):
-    # if request.method == "POST":
+def logoutview(request):    
+
+    # Clear cache
+    cache.clear()
+    cache.delete('username')
+
     logout(request)
     return redirect("/login")
 

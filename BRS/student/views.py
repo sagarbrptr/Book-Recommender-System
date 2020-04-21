@@ -12,6 +12,8 @@ from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
 from django.contrib import messages
 
+from django.core.cache import cache
+from django.views.decorators.cache import cache_page
 
 
 class DB:
@@ -93,11 +95,13 @@ class DB:
 
 
 @login_required(login_url="/login")
-def studentHome(request):
+@cache_page(60 * 15)
+def studentHome(request):    
 
     userCardnumber = ""
     if request.user.is_authenticated():
         userCardnumber = request.user.username
+        # userCardnumber = cache.get('userCardNumber')
 
     database = DB()
 
@@ -110,9 +114,12 @@ def studentHome(request):
     row = database.select(query, errorMsg)
 
     if not len(row):     # If no book is issued, return
+        cache.set('noBookIssued', True)
+
         context = {
             'noBookIssued': True
         }
+
         return render(request, 'student/issue-history.html', context)
 
     result = []
@@ -136,6 +143,9 @@ def studentHome(request):
             temp["valid"] = res[0][1]
 
         result.append(temp)
+
+    # cache.set('noBookIssued', False)
+    # cache.set('studentHomeResult', result)
 
     context = {
         'noBookIssued': False,
@@ -254,7 +264,6 @@ def recommendLibrary(request):
                     temp['author'] = str(author[0][0])
 
                 libraryResult.append(temp)
-
 
     if request.POST.get('checkRecommendedBooks'):   # Check already Recommended books
         searchBook = False
@@ -406,6 +415,7 @@ def recommendLibrary(request):
 
 
 @login_required(login_url="/login")
+@cache_page(60 * 15)
 def studentRecommendation(request):
 
     result = []
@@ -463,7 +473,8 @@ def userProfile(request):
                         user.save()
 
                         passwordChanged = True
-                        messages.add_message(request, messages.INFO, "Password has been Changed Successfully. Please Login again")
+                        messages.add_message(
+                            request, messages.INFO, "Password has been Changed Successfully. Please Login again")
                         return redirect("/login")
 
                     # Error in updating in django
@@ -480,7 +491,6 @@ def userProfile(request):
             else:
                 failMsg = "Old Password is not correct"
                 database.rollback()
-
 
     context = {
         "passwordSubmit": passwordSubmit,
