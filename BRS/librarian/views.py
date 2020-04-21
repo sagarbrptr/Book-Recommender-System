@@ -376,7 +376,7 @@ def librarianStatistics(request):
 
             mostFrequentReader.append(temp)
     
-    //python dictionaries converted to json objects
+    # python dictionaries converted to json objects
     context = {
         'mostIssuedBooks' : json.dumps(mostIssuedBooks),
         'mostRequestedBooks' : json.dumps(mostRequestedBooks),
