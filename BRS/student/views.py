@@ -6,7 +6,8 @@ from django.http import HttpResponse
 # import mysql.connector
 from django.template import RequestContext
 
-# from student.models import *
+from .decorators import login_required_and_not_staff
+
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
@@ -95,6 +96,7 @@ class DB:
 
 
 @login_required(login_url="/login")
+@login_required_and_not_staff
 @cache_page(60 * 15)
 def studentHome(request):    
 
@@ -203,6 +205,7 @@ def increaseRequestCount(database, request, userCardnumber, srNo):
 
 
 @login_required(login_url="/login")
+@login_required_and_not_staff
 def recommendLibrary(request):
 
     userCardnumber = ""
@@ -415,6 +418,7 @@ def recommendLibrary(request):
 
 
 @login_required(login_url="/login")
+@login_required_and_not_staff
 @cache_page(60 * 15)
 def studentRecommendation(request):
 
@@ -427,6 +431,7 @@ def studentRecommendation(request):
 
 
 @login_required(login_url="/login")
+@login_required_and_not_staff
 def userProfile(request):
     database = DB()
     passwordChanged = False
