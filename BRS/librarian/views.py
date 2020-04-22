@@ -225,6 +225,7 @@ def librarianRecommendation(request):
     deleteSuccessful = False
     failReason = "Error in inserting books"
     operationSuccessful = False
+    RequestedBookSrNo = ""
     database = DB()
 
     selectQuery = "select * from libraryRecommendation order by requestCount desc, srNo;"
@@ -281,6 +282,7 @@ def librarianRecommendation(request):
         'recommendedBook': recommendedBook,
         'addRequestedBookFormSubmitted': addRequestedBookFormSubmitted,
         'insertSuccessful': insertSuccessful,
+        'RequestedBookSrNo' : RequestedBookSrNo,
         'deleteSuccessful': deleteSuccessful,
         'operationSuccessful': operationSuccessful,
         'failReason': failReason

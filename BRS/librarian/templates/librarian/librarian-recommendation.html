@@ -56,7 +56,7 @@
               </tfoot>
               <tbody>
                 {% for i in recommendedBook %}
-                <tr>
+                <tr id="{{i.srNo}}-row">
                   <td id="{{i.srNo}}-title">{{i.title}}</td>
                   <td id="{{i.srNo}}-author">{{i.author}}</td>
                   <td id="{{i.srNo}}-subject">{{i.subject}}</td>
@@ -162,6 +162,13 @@
     </div>
   </footer>
   <!-- End of Footer -->
+
+  {% if addRequestedBookFormSubmitted and operationSuccessful %}
+  <script>    
+    row = document.getElementById({{ RequestedBookSrNo }} + "-row");
+    row.parentNode.removeChild(row);         
+  </script>
+  {% endif %}
 
 </div>
 <!-- End of Content Wrapper -->
