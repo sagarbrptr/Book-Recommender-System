@@ -94,7 +94,6 @@ class DB:
 
         return True
 
-
 @login_required(login_url="/login")
 @login_required_and_not_staff
 # @cache_page(60 * 15)
@@ -543,7 +542,8 @@ def userProfile(request):
     }
     return render(request, 'student/user-profile.html', context)
 
-
+@login_required(login_url="/login")
+@login_required_and_not_staff
 def giveRating(request):    
 
     if request.method == "GET":
