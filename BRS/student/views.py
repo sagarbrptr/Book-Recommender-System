@@ -100,6 +100,38 @@ class DB:
 # @cache_page(60 * 15)
 def studentHome(request):
     
+    # Check if studentHomeCache cache is valid
+    studentHomeCache = cache.get('studentHomeCache', 'Not_Valid')
+
+    # If studentHomeCache valid proceed
+    # studentHomeCache can be false if, user has given ratings and studentHomeCache is invalidated
+    if(studentHomeCache != 'Not_Valid' and studentHomeCache != False):
+
+        # Check if no book issued
+        noBookIssuedCache = cache.get('noBookIssuedCache', 'Not_Valid')
+        # If user has issued book
+        if(noBookIssuedCache != 'Not_Valid' and not noBookIssuedCache):
+
+            # Check if studentHomeResultCache is valid
+            studentHomeResultCache = cache.get('studentHomeResultCache', 'Not_Valid')
+            # If studentHomeResultCache is found, return
+            if(noBookIssuedCache != 'Not_Valid'):
+                context = {
+                    'noBookIssued': False,
+                    'result': studentHomeResultCache
+                }
+
+                return render(request, 'student/issue-history.html', context)
+
+        # Else check if user has not issued any books
+        elif(noBookIssuedCache != 'Not_Valid' and noBookIssuedCache):
+
+            # If no book issued, return
+            context = {
+                'noBookIssued': True
+            }
+
+            return render(request, 'student/issue-history.html', context)
 
     userCardnumber = ""
     if request.user.is_authenticated():
@@ -116,8 +148,12 @@ def studentHome(request):
 
     row = database.select(query, errorMsg)
 
-    if not len(row):     # If no book is issued, return
-        cache.set('noBookIssued', True)
+    # If no book is issued, return
+    if not len(row):    
+
+        # Validate studentHomeCache
+        cache.set('studentHomeCache', True)        
+        cache.set('noBookIssuedCache', True)        
 
         context = {
             'noBookIssued': True
@@ -147,8 +183,10 @@ def studentHome(request):
 
         result.append(temp)
 
-    # cache.set('noBookIssued', False)
-    # cache.set('studentHomeResult', result)
+    # Validate StudentHomeCache
+    cache.set('studentHomeCache', True)
+    cache.set('noBookIssuedCache', False)
+    cache.set('studentHomeResultCache', result)
 
     context = {
         'noBookIssued': False,
@@ -506,9 +544,12 @@ def userProfile(request):
     return render(request, 'student/user-profile.html', context)
 
 
-def giveRating(request):
+def giveRating(request):    
 
     if request.method == "GET":
+        # InValidate StudentHomeCache
+        cache.set('studentHomeCache', False)
+
         userCardNumber = ""
         if request.user.is_authenticated():
             userCardNumber = request.user.username
@@ -545,9 +586,9 @@ def giveRating(request):
         # If updated, commit
         if row:
             database.commit()
-            return HttpResponse("Success!")            
+            return HttpResponse("Success!")
         # Else error in update, rollback
         else:
             database.rollback()
-            return HttpResponse("Unsuccessful!")            
+            return HttpResponse("Unsuccessful!")
     return HttpResponse("Not proper request method")
