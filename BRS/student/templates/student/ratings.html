@@ -1,0 +1,70 @@
+{% load static %}
+<link href="{%static '/css/stars.css' %}" rel="stylesheet">
+
+{% if issueRow.valid %}
+    {{issueRow.rating}}
+{% else %}
+<div class="spinner-border" id="loader {{issueRow.title}}" role="status" style="display:none" >
+    <span class="sr-only">Loading...</span>
+  </div>
+<div class="stars" id="ratings cell {{issueRow.title}}" float = "right">
+    
+    <input class="star star-5"  type="radio" name="{{issueRow.barcode}}" onClick="onClickStar(this.value, '{{issueRow.title}}' )" id="star-5 {{issueRow.barcode}}" value=5  required />
+    <label class="star star-5" for="star-5 {{issueRow.barcode}}"></label>
+    
+    <input class="star star-4"  type="radio" name="{{issueRow.barcode}}" onClick="onClickStar(this.value, '{{issueRow.title}}' )" id="star-4 {{issueRow.barcode}}" value=4 />
+    <label class="star star-4" for="star-4 {{issueRow.barcode}}"></label>
+    
+    <input class="star star-3" type="radio" name="{{issueRow.barcode}}" onClick="onClickStar(this.value, '{{issueRow.title}}' )" id="star-3 {{issueRow.barcode}}" value=3 />
+    <label class="star star-3" for="star-3 {{issueRow.barcode}}"></label>
+    
+    <input class="star star-2" type="radio" name="{{issueRow.barcode}}" onClick="onClickStar(this.value, '{{issueRow.title}}' )" id="star-2 {{issueRow.barcode}}" value=2 />
+    <label class="star star-2" for="star-2 {{issueRow.barcode}}"></label>
+    
+    <input class="star star-1" type="radio" name="{{issueRow.barcode}}" onClick="onClickStar(this.value, '{{issueRow.title}}' )" id="star-1 {{issueRow.barcode}}" value=1 />
+    <label class="star star-1" for="star-1 {{issueRow.barcode}}"></label>
+    <!--button type="submit" id="RatingSubmit {{issueRow.barcode}}" class="btn btn-primary">Submit</button-->
+    <br><br>                                
+
+</div>
+<div id="after-rating-inserted {{issueRow.title}}"> 
+</div>
+{% endif %}
+
+
+<script type="text/javascript">
+
+function onClickStar(ratingValue,bookTitle){
+    //Turn of display of ratings div
+    document.getElementById('ratings cell '+bookTitle).style.display="none";
+    //Turn on display of loading
+    document.getElementById("loader "+bookTitle).style.display="block";
+$.ajax(
+{
+    type:"GET",
+    url: "/giveRating",
+    data:{
+             "bookTitle": bookTitle,
+             "rating":ratingValue
+    },
+    success: function( data ) 
+    {
+        if(data!="Success!")
+        {
+            document.getElementById("loader "+bookTitle).style.display="none";
+            document.getElementById('ratings cell '+bookTitle).style.display="block";
+            return;
+        }
+        document.getElementById("loader "+bookTitle).style.display="none";
+
+        //To display the rated value use another div
+        document.getElementById("after-rating-inserted "+bookTitle).innerHTML=ratingValue;
+    },
+    error: function()
+    {
+        document.getElementById("loader "+bookTitle).style.display="none";
+        document.getElementById('ratings cell '+bookTitle).style.display="block";
+    }
+ })
+};
+</script>

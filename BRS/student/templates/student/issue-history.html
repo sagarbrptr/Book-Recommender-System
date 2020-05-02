@@ -1,5 +1,5 @@
 
-{% include "student/base-layout-student.html" %}
+{% extends "student/base-layout-student.html" %}
 
 {% block content %}
   <!-- Page Wrapper -->
@@ -55,11 +55,12 @@
                     <td>{{i.DATE}}</td>
                     <td>{{i.barcode}}</td>
                     <td>{{i.title}}</td>
-                    {% if i.valid %}
-                      <td>{{i.rating}}</td>
-                    {% else %}
-                      <td>Not Rated yet</td>
-                    {% endif %}
+                    
+                      <td>  
+                        
+                       {% include "student/ratings.html" with issueRow=i  %}  
+                      </td>
+                   
                     </tr>
                     {% endfor %}
                   </tbody>
@@ -90,5 +91,7 @@
 
   </div>
   <!-- End of Page Wrapper -->  
-
+  {% load static %}
+  <script src="{%static '/js/sb-admin-2.min.js' %}"></script>
+    
 {% endblock %}

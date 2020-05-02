@@ -97,7 +97,7 @@ class DB:
 
 @login_required(login_url="/login")
 @login_required_and_not_staff
-@cache_page(60 * 15)
+# @cache_page(60 * 15)
 def studentHome(request):    
 
     userCardnumber = ""
@@ -503,3 +503,36 @@ def userProfile(request):
         "failMsg": failMsg,
     }
     return render(request, 'student/user-profile.html', context)
+
+def giveRating(request):
+
+    if request.method == "GET" :
+        userCardNumber = ""
+        if request.user.is_authenticated():
+            userCardNumber = request.user.username
+        if(request.GET['bookTitle']=="" or request.GET['rating']==""):
+            return HttpResponse("Missing arguments")
+        bookTitle = request.GET['bookTitle']
+        rating = request.GET['rating']
+        database = DB()
+
+        query = "select barcode from bt_map where title ='"+bookTitle+"' limit 1;"
+        errorMsg = "error in getting barcode from bt_map"
+
+        row = database.select(query, errorMsg)
+
+        if row:
+            barcodeFromBtMap=row[0][0]
+        else:
+            return HttpResponse("Unsuccessful select!")
+        
+        query = "REPLACE INTO ratings(cardnumber,barcode,rating,valid) VALUES ( '"+ userCardNumber + "' , '" + barcodeFromBtMap + "' ," + rating +",1);" 
+        errorMsg = "Ratings weren't processed into DB"
+
+        row = database.insertOrUpdateOrDelete(query,errorMsg)
+
+        if row: 
+            return HttpResponse("Success!")
+        else:
+            return HttpResponse("Unsuccessful!")
+    return HttpResponse("Not proper request method")
