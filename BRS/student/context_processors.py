@@ -6,8 +6,12 @@ from django.template import RequestContext
 import random
 from django.contrib.admin.views.decorators import staff_member_required
 
+from django.core.cache import cache
+from django.views.decorators.cache import cache_page
+
 from . views import DB
 
+# @cache_page(60 * 30)
 def userInfo(request):
     
     userClass = ""

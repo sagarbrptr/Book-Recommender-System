@@ -98,7 +98,8 @@ class DB:
 @login_required(login_url="/login")
 @login_required_and_not_staff
 # @cache_page(60 * 15)
-def studentHome(request):    
+def studentHome(request):
+    
 
     userCardnumber = ""
     if request.user.is_authenticated():
@@ -504,35 +505,49 @@ def userProfile(request):
     }
     return render(request, 'student/user-profile.html', context)
 
+
 def giveRating(request):
 
-    if request.method == "GET" :
+    if request.method == "GET":
         userCardNumber = ""
         if request.user.is_authenticated():
             userCardNumber = request.user.username
-        if(request.GET['bookTitle']=="" or request.GET['rating']==""):
+        if(request.GET['bookTitle'] == "" or request.GET['rating'] == ""):
             return HttpResponse("Missing arguments")
         bookTitle = request.GET['bookTitle']
         rating = request.GET['rating']
         database = DB()
 
+        # Start Transaction
+        database.beginTransaction()
+
+        # Select barcode from bt_map to be updated in ratings
         query = "select barcode from bt_map where title ='"+bookTitle+"' limit 1;"
         errorMsg = "error in getting barcode from bt_map"
 
         row = database.select(query, errorMsg)
 
+        # If Barcode Found, proceed
         if row:
-            barcodeFromBtMap=row[0][0]
+            barcodeFromBtMap = row[0][0]
+        # Else barcode not found, rollback
         else:
+            database.rollback()
             return HttpResponse("Unsuccessful select!")
-        
-        query = "REPLACE INTO ratings(cardnumber,barcode,rating,valid) VALUES ( '"+ userCardNumber + "' , '" + barcodeFromBtMap + "' ," + rating +",1);" 
+
+        # Update in ratings
+        query = "REPLACE INTO ratings(cardnumber,barcode,rating,valid) VALUES ( '" + \
+            userCardNumber + "' , '" + barcodeFromBtMap + "' ," + rating + ",1);"
         errorMsg = "Ratings weren't processed into DB"
 
-        row = database.insertOrUpdateOrDelete(query,errorMsg)
+        row = database.insertOrUpdateOrDelete(query, errorMsg)
 
-        if row: 
-            return HttpResponse("Success!")
+        # If updated, commit
+        if row:
+            database.commit()
+            return HttpResponse("Success!")            
+        # Else error in update, rollback
         else:
-            return HttpResponse("Unsuccessful!")
+            database.rollback()
+            return HttpResponse("Unsuccessful!")            
     return HttpResponse("Not proper request method")
