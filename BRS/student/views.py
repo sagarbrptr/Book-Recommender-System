@@ -16,6 +16,7 @@ from django.contrib import messages
 from django.core.cache import cache
 from django.views.decorators.cache import cache_page
 
+import requests
 
 class DB:
 
@@ -460,10 +461,14 @@ def recommendLibrary(request):
 @cache_page(60 * 15)
 def studentRecommendation(request):
 
-    result = []
+    payload = { 'sound' : 'meow'}
+    response = requests.get('http://127.0.0.1:8080/classify', params = payload)
+
+    result = response.json()
+    print(result)
 
     context = {
-        'result': result
+        'result': result['dog']
     }
     return render(request, 'student/recommend-student.html', context)
 
