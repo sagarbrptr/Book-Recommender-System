@@ -461,8 +461,8 @@ def recommendLibrary(request):
 @cache_page(60 * 15)
 def studentRecommendation(request):
 
-    payload = { 'sound' : 'meow'}
-    response = requests.get('http://127.0.0.1:8080/classify', params = payload)
+    payload = { 'sound' : 'meow'}    
+    response = requests.get('http://127.0.0.1:8000/classify', params = payload)
 
     result = response.json()
     print(result)

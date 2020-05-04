@@ -6,6 +6,7 @@ from django.contrib.staticfiles.urls import staticfiles_urlpatterns
 from student import views as studentView
 from librarian import views as librarianView
 from login import views as loginView
+from ml import views as mlView
 
 urlpatterns = [
     url(r'^admin/', admin.site.urls),
@@ -13,6 +14,7 @@ urlpatterns = [
     url(r'^login/$', loginView.loginview, name = "login"),
      url(r'^logout/$', loginView.logoutview, name = "logout"),
 
+    # Student
     url(r'^studentHome$', studentView.studentHome, name = "studentHome"),
     url(r'^recommendLibrary$', studentView.recommendLibrary, name = "recommendLibrary"),
     url(r'^studentRecommendation$', studentView.studentRecommendation, name = "studentRecommendation"),
@@ -26,6 +28,9 @@ urlpatterns = [
     url(r'^librarianStatistics$', librarianView.librarianStatistics,
         name="librarianStatistics"),
     url(r'^issueBook$', librarianView.issueBook, name="issueBook"),
+
+    # ML
+    url('classify/', mlView.call_model.as_view()),
 ]
 
 urlpatterns += staticfiles_urlpatterns()
