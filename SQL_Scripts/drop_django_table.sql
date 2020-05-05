@@ -8,3 +8,10 @@ drop table auth_user;
 drop table auth_group;
 drop table auth_permission;
 drop table django_content_type;
+
+
+-- After Deleting tables, staff users are also delted
+-- run following in python shell to create new staff users
+-- from django.contrib.auth.models import User
+-- user = User.objects.create_user('admin', password = 'admin', is_staff = True)
+-- user = User.objects.create_user('admin1', password = 'admin', is_staff = True)

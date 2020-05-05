@@ -8,6 +8,7 @@ class ratings(models.Model):
     barcode = models.CharField(max_length = 9)
     rating = models.IntegerField()
     valid = models.IntegerField(default = 0)
+    userSrNo = models.IntegerField()
 
     class Meta:
         db_table = 'ratings'

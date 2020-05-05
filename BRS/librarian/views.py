@@ -456,7 +456,7 @@ def issueBook(request):
                         # insert in ratings
                         if not database.select(selectRating, errorMsg):
                             insertRatingsQuery = "insert into ratings values ('" + newCardNumber + "', '" + barcode + "', '" + str(
-                                random.randrange(1, 6)) + "', '0');"
+                                random.randrange(1, 6)) + "', '0', (select SrNo from user where cardnumber = '" + newCardNumber + "'));"
                             errorMsg = "Error in inserting in ratings"
 
                             # If insert successful, commit
