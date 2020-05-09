@@ -2,7 +2,7 @@
 
 Dependency : 
 
-1. PyMySql   : pip install pip install PyMySQL
+1. PyMySql   : pip install PyMySQL
 2. MemCached : sudo apt-get install memcached
 3. Requests : pip install requests
 4. scikit-learn : pip install -U scikit-learn

@@ -1,7 +1,7 @@
 {
     "python.linting.pylintEnabled": true,
     "python.linting.enabled": true,
-    "python.pythonPath": "django/bin/python2",
+    "python.pythonPath": "django/bin/python",
     "git.ignoreLimitWarning": true,
     "sqltools.connections": [
         {
