@@ -95,48 +95,90 @@ class DB:
 
         return True
 
+def combineDictionaries(a, b):
+    result = []  
+    i = 0
+    while i < len(a):
+        temp = {}
+        temp["title"] = a[i]['title']
+        temp["barcode"] = a[i]['barcode']
+        temp["DATE"] = a[i]['DATE']
+        temp['valid'] = b[i]['valid']
+        temp['rating'] = b[i]['rating']
+
+        result.append(temp)
+        i += 1
+    
+    return result
+
+def getRatings(bookInfo, userCardnumber, database = DB()):
+
+    bookRating = []
+    for i in bookInfo:
+        title = i['title']
+        temp = {}
+        query_get_rating = "select rating,valid from ratings where barcode = (select bt.barcode from bt_map bt where bt.title ='" + \
+                title + "' limit 1) and cardnumber = '" + \
+                userCardnumber + "';"
+        errorMsg = "Error in selecting rating from ratings"
+
+        res = database.select(query_get_rating, errorMsg)
+
+        if res:
+            temp["rating"] = res[0][0]
+            temp["valid"] = res[0][1]
+        bookRating.append(temp)
+    return bookRating
+
 @login_required(login_url="/login")
 @login_required_and_not_staff
-# @cache_page(60 * 15)
-def studentHome(request):
-    
-    # Check if studentHomeCache cache is valid
-    studentHomeCache = cache.get('studentHomeCache', 'Not_Valid')
-
-    # If studentHomeCache valid proceed
-    # studentHomeCache can be false if, user has given ratings and studentHomeCache is invalidated
-    if(studentHomeCache != 'Not_Valid' and studentHomeCache != False):
-
-        # Check if no book issued
-        noBookIssuedCache = cache.get('noBookIssuedCache', 'Not_Valid')
-        # If user has issued book
-        if(noBookIssuedCache != 'Not_Valid' and not noBookIssuedCache):
-
-            # Check if studentHomeResultCache is valid
-            studentHomeResultCache = cache.get('studentHomeResultCache', 'Not_Valid')
-            # If studentHomeResultCache is found, return
-            if(noBookIssuedCache != 'Not_Valid'):
-                context = {
-                    'noBookIssued': False,
-                    'result': studentHomeResultCache
-                }
-
-                return render(request, 'student/issue-history.html', context)
-
-        # Else check if user has not issued any books
-        elif(noBookIssuedCache != 'Not_Valid' and noBookIssuedCache):
-
-            # If no book issued, return
-            context = {
-                'noBookIssued': True
-            }
-
-            return render(request, 'student/issue-history.html', context)
+def studentHome(request):  
 
     userCardnumber = ""
     if request.user.is_authenticated():
         userCardnumber = request.user.username
-        # userCardnumber = cache.get('userCardNumber')
+
+    # Check if studenetHomeCache id valid
+    studenetHomeCache = cache.get("studenetHomeCache", "Not_Valid")
+
+    if studenetHomeCache != "Not_Valid" and studenetHomeCache:
+
+        # studenetHomeCache is valid
+        # Check if noBookIssuedCache is valid
+        noBookIssuedCache = cache.get("noBookIssuedCache", "Not_Valid")
+
+        if noBookIssuedCache != "Not_Valid":
+
+            # If noBookIssuedCache
+            if noBookIssuedCache:
+                context = {
+                'noBookIssued': True
+                }
+                return render(request, 'student/issue-history.html', context)
+
+            # Else check if validBookRatingCache            
+            validBookRatingCache = cache.get("validBookRatingCache", "Not_Valid")
+            bookInfo = cache.get("bookInfoCache", "Not_Valid")
+
+            if validBookRatingCache != "Not_Valid" and bookInfo != "Not_Valid":
+                
+                bookRating = cache.get("bookRatingCache", "Not_Valid")                
+
+                # If no valid Book Rating 
+                # Get Book Rating again
+                if ( not validBookRatingCache ) or ( bookRating == "Not_Valid") :
+                    bookRating = getRatings(bookInfo, userCardnumber)
+                    validBookRatingCache = cache.set("validBookRatingCache", True)
+                
+                context = {
+                'noBookIssued': False,
+                'result': combineDictionaries(bookInfo, bookRating)
+                }
+
+                return render(request, 'student/issue-history.html', context)
+                    
+
+            
 
     database = DB()
 
@@ -151,49 +193,97 @@ def studentHome(request):
     # If no book is issued, return
     if not len(row):    
 
-        # Validate studentHomeCache
-        cache.set('studentHomeCache', True)        
-        cache.set('noBookIssuedCache', True)        
-
+        # Add in cache 
+        cache.set("studenetHomeCache", True)
+        cache.set("noBookIssuedCache", True)     
         context = {
             'noBookIssued': True
         }
 
         return render(request, 'student/issue-history.html', context)
 
-    result = []
+    bookInfo = []
+    bookRating = []    
 
     for i in row:
 
         temp = {}
         temp["title"] = str(i[0])
         temp["barcode"] = str(i[1])
-        temp["DATE"] = str(i[2])
+        temp["DATE"] = str(i[2])        
 
-        query_get_rating = "select rating,valid from ratings where barcode = (select bt.barcode from bt_map bt where bt.title ='" + \
-            temp["title"] + "' limit 1) and cardnumber = '" + \
-            userCardnumber + "';"
-        errorMsg = "Error in selecting rating from ratings"
+        bookInfo.append(temp)            
+    
+    bookRating = getRatings(bookInfo, userCardnumber, database)
 
-        res = database.select(query_get_rating, errorMsg)
+    # Add in Cache
+    cache.set("studenetHomeCache", True)
+    cache.set("validBookRatingCache", True)
+    cache.set("noBookIssuedCache", False) 
 
-        if res:
-            temp["rating"] = res[0][0]
-            temp["valid"] = res[0][1]
+    # Add book transaction info in cache
+    cache.set("bookInfoCache", bookInfo)
 
-        result.append(temp)
-
-    # Validate StudentHomeCache
-    cache.set('studentHomeCache', True)
-    cache.set('noBookIssuedCache', False)
-    cache.set('studentHomeResultCache', result)
+    # Add book ratings in cache
+    cache.set("bookRatingCache", bookRating)    
 
     context = {
         'noBookIssued': False,
-        'result': result
+        'result': combineDictionaries(bookInfo, bookRating)
     }
 
     return render(request, 'student/issue-history.html', context)
+
+@login_required(login_url="/login")
+@login_required_and_not_staff
+def giveRating(request):    
+
+    if request.method == "GET":
+        # InValidate StudentHomeCache
+        cache.set('validBookRatingCache', False)
+
+        userCardNumber = ""
+        if request.user.is_authenticated():
+            userCardNumber = request.user.username
+        if(request.GET['bookTitle'] == "" or request.GET['rating'] == ""):
+            return HttpResponse("Missing arguments")
+        bookTitle = request.GET['bookTitle']
+        rating = request.GET['rating']
+        database = DB()
+
+        # Start Transaction
+        database.beginTransaction()
+
+        # Select barcode from bt_map to be updated in ratings
+        query = "select barcode from bt_map where title ='"+bookTitle+"' limit 1;"
+        errorMsg = "error in getting barcode from bt_map"
+
+        row = database.select(query, errorMsg)
+
+        # If Barcode Found, proceed
+        if row:
+            barcodeFromBtMap = row[0][0]
+        # Else barcode not found, rollback
+        else:
+            database.rollback()
+            return HttpResponse("Unsuccessful select!")
+
+        # Update in ratings
+        query = "REPLACE INTO ratings(cardnumber,barcode,rating,valid,userSrNo) VALUES ( '" + \
+            userCardNumber + "' , '" + barcodeFromBtMap + "' ," + rating + ",1, (select SrNo from user where cardnumber = '" + userCardNumber + "'));"
+        errorMsg = "Ratings weren't processed into DB"
+
+        row = database.insertOrUpdateOrDelete(query, errorMsg)
+
+        # If updated, commit
+        if row:
+            database.commit()
+            return HttpResponse("Success!")
+        # Else error in update, rollback
+        else:
+            database.rollback()
+            return HttpResponse("Unsuccessful!")
+    return HttpResponse("Not proper request method")
 
 
 def increaseRequestCount(database, request, userCardnumber, srNo):
@@ -547,53 +637,3 @@ def userProfile(request):
     }
     return render(request, 'student/user-profile.html', context)
 
-@login_required(login_url="/login")
-@login_required_and_not_staff
-def giveRating(request):    
-
-    if request.method == "GET":
-        # InValidate StudentHomeCache
-        cache.set('studentHomeCache', False)
-
-        userCardNumber = ""
-        if request.user.is_authenticated():
-            userCardNumber = request.user.username
-        if(request.GET['bookTitle'] == "" or request.GET['rating'] == ""):
-            return HttpResponse("Missing arguments")
-        bookTitle = request.GET['bookTitle']
-        rating = request.GET['rating']
-        database = DB()
-
-        # Start Transaction
-        database.beginTransaction()
-
-        # Select barcode from bt_map to be updated in ratings
-        query = "select barcode from bt_map where title ='"+bookTitle+"' limit 1;"
-        errorMsg = "error in getting barcode from bt_map"
-
-        row = database.select(query, errorMsg)
-
-        # If Barcode Found, proceed
-        if row:
-            barcodeFromBtMap = row[0][0]
-        # Else barcode not found, rollback
-        else:
-            database.rollback()
-            return HttpResponse("Unsuccessful select!")
-
-        # Update in ratings
-        query = "REPLACE INTO ratings(cardnumber,barcode,rating,valid,userSrNo) VALUES ( '" + \
-            userCardNumber + "' , '" + barcodeFromBtMap + "' ," + rating + ",1, (select SrNo from user where cardnumber = '" + userCardNumber + "'));"
-        errorMsg = "Ratings weren't processed into DB"
-
-        row = database.insertOrUpdateOrDelete(query, errorMsg)
-
-        # If updated, commit
-        if row:
-            database.commit()
-            return HttpResponse("Success!")
-        # Else error in update, rollback
-        else:
-            database.rollback()
-            return HttpResponse("Unsuccessful!")
-    return HttpResponse("Not proper request method")
