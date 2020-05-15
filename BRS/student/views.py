@@ -550,15 +550,9 @@ def recommendLibrary(request):
 @login_required_and_not_staff
 @cache_page(60 * 15)
 def studentRecommendation(request):
-
-    payload = { 'sound' : 'meow'}    
-    response = requests.get('http://127.0.0.1:8000/classify', params = payload)
-
-    result = response.json()
-    print(result)
-
+    
     context = {
-        'result': result['dog']
+        'result' : "Hello",
     }
     return render(request, 'student/recommend-student.html', context)
 

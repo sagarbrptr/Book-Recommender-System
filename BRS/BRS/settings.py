@@ -39,8 +39,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'student.apps.StudentConfig',
     'librarian.apps.LibrarianConfig',
-    'login.apps.LoginConfig',
-    'ml.apps.MlConfig'
+    'login.apps.LoginConfig',    
 ]
 
 MIDDLEWARE = [
@@ -131,8 +130,6 @@ CACHES = {
         'LOCATION': '127.0.0.1:11211',
     }
 }
-
-MODELS = os.path.join(BASE_DIR, 'ml/models')
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/1.11/howto/static-files/
