@@ -1,8 +1,8 @@
 {
     "python.linting.pylintEnabled": true,
     "python.linting.enabled": true,
-    // "python.pythonPath": "django/bin/python",
-    "python.pythonPath": "django\\Scripts\\python.exe",
+    "python.pythonPath": "django/bin/python",
+    // "python.pythonPath": "django\\Scripts\\python.exe",
     "git.ignoreLimitWarning": true,
     "sqltools.connections": [
         {

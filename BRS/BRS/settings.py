@@ -40,6 +40,7 @@ INSTALLED_APPS = [
     'student.apps.StudentConfig',
     'librarian.apps.LibrarianConfig',
     'login.apps.LoginConfig',    
+    'ml.apps.MlConfig',
 ]
 
 MIDDLEWARE = [

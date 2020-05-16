@@ -269,8 +269,9 @@ def giveRating(request):
             return HttpResponse("Unsuccessful select!")
 
         # Update in ratings
-        query = "REPLACE INTO ratings(cardnumber,barcode,rating,valid,userSrNo) VALUES ( '" + \
-            userCardNumber + "' , '" + barcodeFromBtMap + "' ," + rating + ",1, (select SrNo from user where cardnumber = '" + userCardNumber + "'));"
+        # query = "REPLACE INTO ratings(cardnumber,barcode,rating,valid,userSrNo) VALUES ( '" + \
+            # userCardNumber + "' , '" + barcodeFromBtMap + "' ," + rating + ",1, (select SrNo from user where cardnumber = '" + userCardNumber + "'));"
+        query = "update ratings set rating = '" + str(rating) + "', valid = 1 where barcode = '" + barcodeFromBtMap + "' and cardnumber = '" + userCardNumber + "';"
         errorMsg = "Ratings weren't processed into DB"
 
         row = database.insertOrUpdateOrDelete(query, errorMsg)

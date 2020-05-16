@@ -4,11 +4,14 @@ from django.db import connection, transaction
 from django.shortcuts import render, render_to_response
 from django.http import HttpResponse
 from django.template import RequestContext
-import random,json
+import random
+import json
 from django.contrib.admin.views.decorators import staff_member_required
 
 from django.core.cache import cache
 from django.views.decorators.cache import cache_page
+from ml.views import ML
+
 
 class DB:
 
@@ -88,6 +91,43 @@ class DB:
         return True
 
 
+def incrementNewTransaction(database):
+
+    selectQuery = "select * from newTransactions"
+    errorMsg = "Error in selecting from newTransactions"
+
+    newTransactionCount = database.select(selectQuery, errorMsg)
+
+    # If select is successful
+    if newTransactionCount:
+        count = newTransactionCount[0][0]
+        print(count)
+
+        if count == 49:
+            print("Generating CSV wait")
+            ml = ML()
+            ml.createCSV(database)
+            print("CSV created successfully")
+
+        count = (count + 1) % 50
+
+        # Update newTransaction
+        updateQuery = "update newTransactions set Count = '" + \
+            str(count) + "';"
+        errorMsg = "Error in updating entry of newTransactions"
+
+        # If update successful, success
+        if database.insertOrUpdateOrDelete(updateQuery, errorMsg):
+            return True
+
+        # Else, update unsuccessful, error
+        else:
+            return False
+    # Else, error in read, error
+    else:
+        return False
+
+
 def insertBook(request, database):
 
     # Start transaction
@@ -119,21 +159,36 @@ def insertBook(request, database):
 
         # Else, enter in bt_map
         else:
-            insertQuery = "insert into bt_map values ('" + \
-                newBarocde + "', '" + newTitle + "');"
-            errorMsg = "Error in insertion in bt_map"
+            # select max bookSrNo from bt_map
+            selectQuery = "select max(bookSrNo) from bt_map"
+            errorMsg = "error in selecting max of bookSrNo from bt_map"
 
-            # If insertion is successful, commit
-            if database.insertOrUpdateOrDelete(insertQuery, errorMsg):
-                database.commit()
-                return True
+            maxBookSrNo = database.select(selectQuery, errorMsg)
 
-            # Else, error in insertion of bt_map, rollback
+            # If valid maxBookSrNo increment
+            if maxBookSrNo:
+                newSrNo = maxBookSrNo[0][0] + 1
+
+                # insert in bt_map
+                insertQuery = "insert into bt_map values ('" + \
+                    newBarocde + "', '" + newTitle + \
+                    "', '" + str(newSrNo) + "');"
+                errorMsg = "Error in insertion in bt_map"
+
+                # If insertion is successful
+                if database.insertOrUpdateOrDelete(insertQuery, errorMsg):
+                    database.commit()
+                    return True
+
+                # Else, error in insertion of bt_map, rollback
+                else:
+                    database.rollback()
+                    return False
             else:
                 database.rollback()
                 return False
 
-        # Else error in inserting in books
+    # Else error in inserting in books
     else:
         database.rollback()
         return False
@@ -282,7 +337,7 @@ def librarianRecommendation(request):
         'recommendedBook': recommendedBook,
         'addRequestedBookFormSubmitted': addRequestedBookFormSubmitted,
         'insertSuccessful': insertSuccessful,
-        'RequestedBookSrNo' : RequestedBookSrNo,
+        'RequestedBookSrNo': RequestedBookSrNo,
         'deleteSuccessful': deleteSuccessful,
         'operationSuccessful': operationSuccessful,
         'failReason': failReason
@@ -380,15 +435,15 @@ def librarianStatistics(request):
                 temp['name'] = "Not Available"
 
             mostFrequentReader.append(temp)
-    
+
     # python dictionaries converted to json objects
     context = {
-        'mostIssuedBooks' : json.dumps(mostIssuedBooks),
-        'mostRequestedBooks' : json.dumps(mostRequestedBooks),
-        'highestRatedBooks' : json.dumps(highestRatedBooks),
-        'mostFrequentReader' : json.dumps(mostFrequentReader),
+        'mostIssuedBooks': json.dumps(mostIssuedBooks),
+        'mostRequestedBooks': json.dumps(mostRequestedBooks),
+        'highestRatedBooks': json.dumps(highestRatedBooks),
+        'mostFrequentReader': json.dumps(mostFrequentReader),
     }
-    
+
     return render(request, 'librarian/librarian-statistics.html', context)
 
 
@@ -435,8 +490,8 @@ def issueBook(request):
                 # If insert in transaction successful,
                 # insert in ratings through ratings
                 if database.insertOrUpdateOrDelete(insertTransactionQuery, errMsg):
-                    # Get Barcode from bt_map
-                    selectBarcodeBt_map = "select barcode from bt_map where title = '" + title + "';"
+                    # Get Barcode and bookSrNo from bt_map
+                    selectBarcodeBt_map = "select barcode, bookSrNo from bt_map where title = '" + title + "';"
                     errorMsg = "Error in selecting barcode from bt_map"
 
                     validBarcode = database.select(
@@ -447,6 +502,7 @@ def issueBook(request):
 
                     if validBarcode:
                         barcode = validBarcode[0][0]
+                        bookSrNo = validBarcode[0][1]
 
                         selectRating = "select * from ratings where barcode = '" + \
                             barcode + "' and cardnumber = '" + newCardNumber + "';"
@@ -456,23 +512,39 @@ def issueBook(request):
                         # insert in ratings
                         if not database.select(selectRating, errorMsg):
                             insertRatingsQuery = "insert into ratings values ('" + newCardNumber + "', '" + barcode + "', '" + str(
-                                random.randrange(1, 6)) + "', '0', (select SrNo from user where cardnumber = '" + newCardNumber + "'));"
+                                random.randrange(1, 6)) + "', '0', (select SrNo from user where cardnumber = '" + newCardNumber + "'), '" + \
+                                str(bookSrNo) + "');"
                             errorMsg = "Error in inserting in ratings"
 
-                            # If insert successful, commit
+                            # If insert successful, increment
                             if database.insertOrUpdateOrDelete(insertRatingsQuery, errorMsg):
-                                issueSuccessful = True
-                                database.commit()
+
+                                # If increment successful, commit
+                                if incrementNewTransaction(database):
+                                    issueSuccessful = True
+                                    database.commit()
+
+                                # Else error in increment count of new Transaction, rollback
+                                else:
+                                    database.rollback()
 
                             # Else, error in inserting in ratings, commit
                             else:
                                 ErrMsg = "Error in inserting in ratings"
                                 database.rollback()
 
-                        # Else, a rating already exists for given set, commit
+                        # Else, a rating already exists for given set,
+                        # increment count of new Transaction
                         else:
-                            issueSuccessful = True
-                            database.commit()
+
+                            # If increment successful, commit
+                            if incrementNewTransaction(database):
+                                issueSuccessful = True
+                                database.commit()
+
+                            # Else error in increment count of new Transaction, rollback
+                            else:
+                                database.rollback()
 
                     # Else, error in getting barcode from bt_map, rollback
                     else:
