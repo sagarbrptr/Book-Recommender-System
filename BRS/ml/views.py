@@ -4,7 +4,7 @@ from student.views import DB
 class ML:
 
     def createCSV(self, database):
-        writer = csv.writer(open('ml/ratings.csv', 'w'))   
+        writer = csv.writer(open('ml/ratings.csv', 'wb'))   
         writer.writerow(['userId', 'bookId', 'rating'])             
 
         selectQuery = "select userSrNo, bookSrNo, rating from ratings"
