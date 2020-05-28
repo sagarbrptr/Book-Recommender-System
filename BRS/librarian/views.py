@@ -103,11 +103,16 @@ def incrementNewTransaction(database):
         count = newTransactionCount[0][0]
         print(count)
 
-        if count == 49:
-            print("Generating CSV wait")
-            ml = ML()
-            ml.createCSV(database)
-            print("CSV created successfully")
+        # if count == 49:
+            # print("Generating CSV wait")
+            # ml = ML()
+            # ml.createCSV(database)
+            # print("CSV created successfully")
+        
+        print("Generating CSV wait")
+        ml = ML()
+        ml.createCSV(database)
+        print("CSV created successfully")
 
         count = (count + 1) % 50
 
