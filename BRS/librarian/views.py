@@ -113,6 +113,9 @@ def incrementNewTransaction(database):
         ml = ML()
         ml.createCSV(database)
         print("CSV created successfully")
+        print("Generating recommendations wait")
+        ml.runRecommendations()
+        print("Recommendations generated successfully")
 
         count = (count + 1) % 50
 

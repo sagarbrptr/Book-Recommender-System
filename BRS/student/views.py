@@ -16,6 +16,8 @@ from django.contrib import messages
 from django.core.cache import cache
 from django.views.decorators.cache import cache_page
 
+
+import csv
 import requests
 
 class DB:
@@ -551,7 +553,7 @@ def recommendLibrary(request):
 @login_required_and_not_staff
 @cache_page(60 * 15)
 def studentRecommendation(request):
-    
+    # csv_reader = csv.reader(ratings, delimiter=',')
     context = {
         'result' : "Hello",
     }
