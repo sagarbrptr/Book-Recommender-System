@@ -574,11 +574,8 @@ def studentRecommendation(request):
     reader = csv.reader(open('ml/recommendations.csv', 'r'))   
     
     reader = dict((str(row[0]),row) for row in reader)
-
-    if userSrNo in reader.keys():
-        recommendations = reader[str(userSrNo)]
-    else:
-        recommendations = reader[str(1)]
+    
+    recommendations = reader[str(userSrNo)]
     
     
     for j in range(1, 11):
