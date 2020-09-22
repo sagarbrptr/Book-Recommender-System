@@ -553,9 +553,48 @@ def recommendLibrary(request):
 @login_required_and_not_staff
 @cache_page(60 * 15)
 def studentRecommendation(request):
-    # csv_reader = csv.reader(ratings, delimiter=',')
+    userCardnumber = ""
+    if request.user.is_authenticated():
+        userCardnumber = request.user.username
+
+    query = "select SrNo from user where cardnumber = '" + userCardnumber + "'"
+    errorMsg = "Error in getting srNo"
+
+    database = DB()
+    result = []
+    userSrNo = database.select(query, errorMsg)
+    if userSrNo:
+        userSrNo = userSrNo[0][0]
+    else:
+        context = {
+            'result' : result,
+        }
+        return render(request, 'student/recommend-student.html', context)
+
+    reader = csv.reader(open('ml/recommendations.csv', 'r'))   
+    
+    reader = dict((str(row[0]),row) for row in reader)
+
+    if userSrNo in reader.keys():
+        recommendations = reader[str(userSrNo)]
+    else:
+        recommendations = reader[str(1)]
+    
+    
+    for j in range(1, 11):
+        query = "select barcode, title from bt_map where bookSrNo = '" + str(recommendations[j]) + "';"
+        errorMsg = "Error in selecting book from bt_map"
+        res = database.select(query, errorMsg)
+        
+        if res:
+            temp = {}
+            temp['barcode'] = str(res[0][0])
+            temp['title'] = str(res[0][1])
+
+            result.append(temp)
+
     context = {
-        'result' : "Hello",
+        'result' : result,
     }
     return render(request, 'student/recommend-student.html', context)
 
