@@ -457,66 +457,66 @@ def recommendLibrary(request):
 
         row = database.select(query, errorMsg)
 
-        if row:
-            if not len(row):    # does not exists,  new Book is recommended
-                newRequest = True
+        # if row:
+        if not len(row):    # does not exists,  new Book is recommended
+            newRequest = True
 
-                #insert in libraryRecommendation
-                insertQuery = "insert into libraryRecommendation values(default, '" + \
-                    newTitle + "', '" + newAuthor + "', '" + newCategory + "', 1);"
-                errorMsg = "Error in inserting in libraryRecommendation"
+            #insert in libraryRecommendation
+            insertQuery = "insert into libraryRecommendation values(default, '" + \
+                newTitle + "', '" + newAuthor + "', '" + newCategory + "', 1);"
+            errorMsg = "Error in inserting in libraryRecommendation"
 
-                # If insert in libraryRecommendation sucessful,
-                # select latest srNo of book inserted
-                if database.insertOrUpdateOrDelete(insertQuery, errorMsg):
+            # If insert in libraryRecommendation sucessful,
+            # select latest srNo of book inserted
+            if database.insertOrUpdateOrDelete(insertQuery, errorMsg):
 
-                    getSrNo = "select max(srNo) from libraryRecommendation ;"
-                    errorMsg = "Error in selecting max srNo from libraryRecommendation"
+                getSrNo = "select max(srNo) from libraryRecommendation ;"
+                errorMsg = "Error in selecting max srNo from libraryRecommendation"
 
-                    latestSrNo = database.select(getSrNo, errorMsg)
+                latestSrNo = database.select(getSrNo, errorMsg)
 
-                    # If valid srNo found, insert in bookRequest
-                    if latestSrNo:
-                        srNo = str(latestSrNo[0][0])
-                        insertQuery = "insert into bookRequest (srNo, cardnumber) values ('" + \
-                            srNo + "', '" + userCardnumber + "');"
-                        errorMsg = "Error in inserting bookRequest"
+                # If valid srNo found, insert in bookRequest
+                if latestSrNo:
+                    srNo = str(latestSrNo[0][0])
+                    insertQuery = "insert into bookRequest (srNo, cardnumber) values ('" + \
+                        srNo + "', '" + userCardnumber + "');"
+                    errorMsg = "Error in inserting bookRequest"
 
-                        insertSuccessful = database.insertOrUpdateOrDelete(
-                            insertQuery, errorMsg)
+                    insertSuccessful = database.insertOrUpdateOrDelete(
+                        insertQuery, errorMsg)
 
-                        # If insertion failed, rollback
-                        if not insertSuccessful:
-                            alreadyRequested = True
-                            newRequest = False
-                            failMsg = "Error in insertion in bookRequest"
-                            database.rollback()
-
-                        # Else insertion was successful, commit
-                        if not failMsg:
-                            successMsg = "New Book Recommended Successfully"
-                            database.commit()
-
-                    # Else error in srNo, rollback
-                    else:
-                        print("Error in selecting srNo from libraryRecommendation")
-                        failMsg = "Error in selecting srNo from libraryRecommendation"
+                    # If insertion failed, rollback
+                    if not insertSuccessful:
+                        alreadyRequested = True
+                        newRequest = False
+                        failMsg = "Error in insertion in bookRequest"
                         database.rollback()
 
-                # Else error in insertion in libraryRecommendation
+                    # Else insertion was successful, commit
+                    if not failMsg:
+                        successMsg = "New Book Recommended Successfully"
+                        database.commit()
+
+                # Else error in srNo, rollback
                 else:
-                    print("Error in insertion in libraryRecommendation")
-                    failMsg = "Error in inserting libraryRecommendation"
+                    print("Error in selecting srNo from libraryRecommendation")
+                    failMsg = "Error in selecting srNo from libraryRecommendation"
                     database.rollback()
 
-            # Else book already exists, increase count
+            # Else error in insertion in libraryRecommendation
             else:
-                srNo = str(row[0][0])
-                alreadyRequested,  newRequest, failMsg, successMsg = increaseRequestCount(
-                    database, request, userCardnumber, srNo)
+                print("Error in insertion in libraryRecommendation")
+                failMsg = "Error in inserting libraryRecommendation"
+                database.rollback()
 
+        # Else book already exists, increase count
         else:
-            failMsg = "Error in title. Check if you have not inserted any quotes!! (-_-)"
+            srNo = str(row[0][0])
+            alreadyRequested,  newRequest, failMsg, successMsg = increaseRequestCount(
+                database, request, userCardnumber, srNo)
+
+        # else:
+        #     failMsg = "Error in title. Check if you have not inserted any quotes!! (-_-)"
 
     if request.POST.get("increaseRequestCount"):
         newBookRecommended = True

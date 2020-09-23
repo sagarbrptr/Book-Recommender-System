@@ -16,6 +16,7 @@
 #
 import pandas as pd
 import sys
+from writeRecommendations import writeCSV
 # from __future__ import print_function
 
 
@@ -37,7 +38,7 @@ if __name__ == "__main__":
         .getOrCreate()
 
     # $example on$
-    # lines = spark.read.text("/home/vedang/Documents/spark-2.4.4-bin-hadoop2.7/data/mllib/als/sample_movielens_ratings.txt").rdd
+    # lines = spark.read.text("/home/vedang/Documents/spark-2.4.4-bin-hadoop2.7/data/mllib/als/sample_booklens_ratings.txt").rdd
     # ratings_txt= pd.read_csv("ratings.csv",sep = ",")
 
     
@@ -64,21 +65,17 @@ if __name__ == "__main__":
     rmse = evaluator.evaluate(predictions)
     print("Root-mean-square error = " + str(rmse))
 
-    # Generate top 10 movie recommendations for each user
+    # Generate top 10 book recommendations for each user
     userRecs = model.recommendForAllUsers(10)
-    # Generate top 10 user recommendations for each movie
+    # Generate top 10 user recommendations for each book
     bookRecs = model.recommendForAllItems(10)
 
-    # Generate top 10 movie recommendations for a specified set of users
+    # Generate top 10 book recommendations for a specified set of users
     users = ratings.select(als.getUserCol()).distinct().limit(3)
     userSubsetRecs = model.recommendForUserSubset(users, 10)
-    # Generate top 10 user recommendations for a specified set of movies
+    # Generate top 10 user recommendations for a specified set of books
     book = ratings.select(als.getItemCol()).distinct().limit(3)
     bookSubSetRecs = model.recommendForItemSubset(book, 10)
     # $example off$
-    userRecs.show(10)
-    bookRecs.show()
-    userSubsetRecs.show()
-    bookSubSetRecs.show()
 
     spark.stop()
