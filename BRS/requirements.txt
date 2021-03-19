@@ -4,7 +4,7 @@ certifi==2020.4.5.1
 chardet==3.0.4
 configparser==4.0.2
 Django==1.11
-djangorestframework==3.9.4
+djangorestframework==3.11.2
 enum34==1.1.10
 futures==3.3.0
 idna==2.9
