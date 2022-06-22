@@ -11,7 +11,7 @@ idna==2.9
 isort==4.3.21
 lazy-object-proxy==1.4.3
 mccabe==0.6.1
-numpy==1.16.6
+numpy==1.22.0
 pylint==1.9.5
 PyMySQL==0.9.3
 python-memcached==1.59
